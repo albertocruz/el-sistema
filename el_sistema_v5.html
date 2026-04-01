@@ -482,7 +482,7 @@ function showReprogramar(id){
   if(futuras.length){
     h+='<div class="dl2" style="margin-top:10px">Fechas disponibles en '+({BASICO:'B\u00e1sico',DIOSES:'Los Dioses',GENIO:'Genio'}[item.marca_short]||'')+' </div>';
     h+='<div class="fecha-pills">';
-    futuras.forEach(f=>{const d=new Date(f);const lbl=['Dom','Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b'][d.getDay()]+' '+d.getDate();h+='<button class="fecha-pill" onclick="document.getElementById(\'m-fecha\').value=\''+f+'\'">'+lbl+'</button>';});
+    futuras.forEach(f=>{const pts=f.split('-');const d=new Date(pts[0],pts[1]-1,pts[2]);const lbl=['Dom','Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b'][d.getDay()]+' '+d.getDate();h+='<button class="fecha-pill" onclick="document.getElementById(\'m-fecha\').value=\''+f+'\'">'+lbl+'</button>';});
     h+='</div>';
   }
   h+='<div class="modal-btns"><button class="modal-btn modal-btn-ok" onclick="confirmReprogramar(\''+id+'\')">Reprogramar</button><button class="modal-btn modal-btn-cancel" onclick="closeModal()">Cancelar</button></div>';
