@@ -1,1 +1,1 @@
-web: python -m http.server $PORT 
+web: npx serve . -p %PORT% 
