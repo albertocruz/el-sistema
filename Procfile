@@ -1,1 +1,1 @@
-web: npx serve . -p %PORT% 
+web: npx serve . -l $PORT 
