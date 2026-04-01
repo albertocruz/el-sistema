@@ -140,7 +140,7 @@ const CLIP_BANK=_d("eyIxMDAiOiB7Im5vbWJyZSI6ICJBcnR1cm8gTMOzcGV6IEdhdml0byIsICJj
 const SEMS=_d("WyJTMSIsICJTMTAiLCAiUzExIiwgIlMxMiIsICJTMiIsICJTMyIsICJTNCIsICJTNSIsICJTNiIsICJTNyIsICJTOCIsICJTOSJd");
 
 let role=null,view='hoy',filtro='T',sem='S1',expId=null,cTabs={};
-const TODAY=new Date().toISOString().split('T')[0];
+const TODAY=(()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');})();
 
 function addD(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x.toISOString().split('T')[0];}
 
