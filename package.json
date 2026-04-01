@@ -1,1 +1,1 @@
-{"name":"el-sistema","version":"1.0.0","scripts":{"start":"npx serve . -p $PORT -l $PORT"}} 
+{"name":"el-sistema","version":"2.0.0","scripts":{"start":"node server.js"},"dependencies":{"express":"^4.18.2"}} 
