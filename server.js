@@ -1,38 +1,13 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-
+const redis = require('redis');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const ESTADO_FILE = path.join(__dirname, 'estado.json');
-
+const client = redis.createClient({url: process.env.REDIS_URL || process.env.REDIS_PUBLIC_URL});
+client.on('error', err => console.log('Redis error:', err));
+client.connect().then(() => console.log('Redis conectado'));
 app.use(express.json());
 app.use(express.static(__dirname));
 app.get('/', (req, res) => res.redirect('/el_sistema_v7.html'));
-
-function loadEstado(){
-  if(fs.existsSync(ESTADO_FILE)){
-    try{return JSON.parse(fs.readFileSync(ESTADO_FILE,'utf8'));}
-    catch(e){return {};}
-  }
-  return {};
-}
-
-function saveEstado(estado){
-  fs.writeFileSync(ESTADO_FILE,JSON.stringify(estado,null,2),'utf8');
-}
-
-app.get('/api/estado',(req,res)=>{
-  res.json(loadEstado());
-});
-
-app.post('/api/estado',(req,res)=>{
-  const {id,...data}=req.body;
-  if(!id)return res.status(400).json({error:'id requerido'});
-  const estado=loadEstado();
-  estado[id]={...estado[id],...data,updated_at:new Date().toISOString()};
-  saveEstado(estado);
-  res.json({ok:true});
-});
-
-app.listen(PORT,()=>console.log('El Sistema en puerto',PORT));
+app.get('/api/estado', async (req, res) => {try{const d=await client.get('estado');res.json(d?JSON.parse(d):{});}catch(e){res.json({});}});
+app.post('/api/estado', async (req, res) => {const{id,...data}=req.body;if(!id)return res.status(400).json({error:'id requerido'});try{const r=await client.get('estado');const e=r?JSON.parse(r):{};e[id]={...e[id],...data,updated_at:new Date().toISOString()};await client.set('estado',JSON.stringify(e));res.json({ok:true});}catch(e){res.status(500).json({error:e.message});}});
+app.listen(PORT, () => console.log('El Sistema en puerto', PORT));
