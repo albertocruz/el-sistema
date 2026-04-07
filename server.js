@@ -8,6 +8,7 @@ const ESTADO_FILE = path.join(__dirname, 'estado.json');
 
 app.use(express.json());
 app.use(express.static(__dirname));
+app.get('/', (req, res) => res.redirect('/el_sistema_v6.html'));
 
 function loadEstado(){
   if(fs.existsSync(ESTADO_FILE)){
