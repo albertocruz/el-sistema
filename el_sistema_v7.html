@@ -560,7 +560,9 @@ function rGrp(fecha,items,tipo){
   const isT=tipo==='hoy';
   const isPast=tipo==='pasado';
   let h='<div class="dh"><span class="dl'+(isT?' td':isPast?' past':'')+'">'+(isPast?'\u2190 ':'')+s.fecha_display+'</span><span class="dsm">'+s.semana+'</span>'+(isT?'<span class="dtd">HOY</span>':'')+'<span class="dc">'+items.length+'</span></div>';
-  items.forEach(i=>h+=rCard(i));
+  // Deduplicate by id to avoid duplicate DOM elements
+  const seen=new Set();
+  items.forEach(function(i){if(!seen.has(i.id)){seen.add(i.id);h+=rCard(i);}});
   return h;
 }
 function rCard(item){
@@ -789,10 +791,13 @@ function rCopy(item){
 
 function tog(id){
   const det=document.getElementById('d-'+id);
+  if(!det)return;
   if(expId===id){det.classList.remove('on');det.innerHTML='';expId=null;return;}
   if(expId){const p=document.getElementById('d-'+expId);if(p){p.classList.remove('on');p.innerHTML='';}}
   expId=id;
-  det.innerHTML=rDet(ITEMS.find(function(i){return i.id===id;}));
+  const item=ITEMS.find(function(i){return i.id===id;});
+  if(!item)return;
+  det.innerHTML=rDet(item);
   det.classList.add('on');
   setTimeout(function(){det.scrollIntoView({behavior:'smooth',block:'nearest'});},60);
 }
