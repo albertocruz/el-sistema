@@ -251,6 +251,17 @@ function getItemPlats(item){
 
 function isPublishedOn(id,plat){return(ESTADO[id]||{})['pub_'+plat]===true;}
 function allPublished(item){const p=getItemPlats(item);return p.length>0&&p.every(x=>isPublishedOn(item.id,x));}
+function getEffectiveDate(item){
+  const e=ESTADO[item.id]||{};
+  if((e.status==='Reprogramado'||e.status==='En cola')&&e.nueva_fecha&&e.nueva_fecha.length===10)return e.nueva_fecha;
+  return item.fecha;
+}
+function getEffectiveFechaDisplay(item){
+  const f=getEffectiveDate(item);
+  if(f===item.fecha)return item.fecha_display;
+  const pts=f.split('-');const d=new Date(pts[0],pts[1]-1,pts[2]);
+  return['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()]+' '+d.getDate()+' '+['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(pts[1])];
+}
 function getEffectiveStatus(item){
   const e=ESTADO[item.id]||{};
   if(e.status)return e.status;
@@ -328,6 +339,15 @@ function fi(arr){
   }
   return r;
 }
+// Override item date with effective date for display
+function itemsWithEffectiveDates(arr){
+  return arr.map(function(i){
+    const ef=getEffectiveDate(i);
+    const efd=getEffectiveFechaDisplay(i);
+    if(ef!==i.fecha)return Object.assign({},i,{fecha:ef,fecha_display:efd});
+    return i;
+  });
+}
 
 function renderAll(){
   if(!role)return;
@@ -341,10 +361,11 @@ function renderAll(){
 
 function rHoy(){
   const el=document.getElementById('v-hoy');
-  const tod=fi(ITEMS.filter(i=>i.fecha===TODAY));
-  const tom=fi(ITEMS.filter(i=>i.fecha===addD(TODAY,1)));
-  const nx=fi(ITEMS.filter(i=>i.fecha>addD(TODAY,1)&&i.fecha<=addD(TODAY,7)));
-  const sns=fi(ITEMS.filter(i=>i.fecha>addD(TODAY,7)&&i.fecha<=addD(TODAY,14)));
+  const allEff=itemsWithEffectiveDates(fi(ITEMS));
+  const tod=allEff.filter(i=>i.fecha===TODAY);
+  const tom=allEff.filter(i=>i.fecha===addD(TODAY,1));
+  const nx=allEff.filter(i=>i.fecha>addD(TODAY,1)&&i.fecha<=addD(TODAY,7));
+  const sns=allEff.filter(i=>i.fecha>addD(TODAY,7)&&i.fecha<=addD(TODAY,14));
   let h=tod.length?'<div class="bnr">HOY \u2014 '+tod[0].fecha_display+'</div>':'<div class="bnr">Sin publicaciones para hoy</div>';
   if(tod.length)h+=rGrp(TODAY,tod,'hoy');
   if(tom.length)h+=rGrp(addD(TODAY,1),tom,'manana');
@@ -354,7 +375,7 @@ function rHoy(){
 }
 function rHist(){
   const el=document.getElementById('v-historial');
-  const past=fi(ITEMS.filter(i=>i.fecha<TODAY));
+  const past=itemsWithEffectiveDates(fi(ITEMS)).filter(i=>i.fecha<TODAY);
   const bd={};past.forEach(i=>{if(!bd[i.fecha])bd[i.fecha]=[];bd[i.fecha].push(i);});
   const pub=past.filter(i=>allPublished(i)).length;
   let h='<div class="sts"><span><strong style="color:var(--tx)">'+past.length+'</strong> pasadas</span><span style="color:var(--gn)"><strong>'+pub+'</strong> pub</span><span style="color:var(--rd)"><strong>'+(past.length-pub)+'</strong> sin pub</span></div>';
@@ -364,7 +385,7 @@ function rHist(){
 }
 function rSem(){
   const el=document.getElementById('v-semana');
-  const its=fi(ITEMS.filter(i=>i.semana===sem));
+  const its=itemsWithEffectiveDates(fi(ITEMS)).filter(i=>i.semana===sem);
   const bd={};its.forEach(i=>{if(!bd[i.fecha])bd[i.fecha]=[];bd[i.fecha].push(i);});
   const L=its.filter(i=>allPublished(i)).length;
   let h='<div class="wp-row">';
