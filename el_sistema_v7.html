@@ -614,7 +614,16 @@ function rHeroSelector(item){
   });
   // Group by invitado
   const byEp={};
+  // Get all already-selected clip keys (excluding this item)
+  const usedClipKeys=new Set();
+  Object.keys(ESTADO).forEach(function(sid){
+    if(sid===item.id)return;
+    const sel=(ESTADO[sid]||{}).hero_clip_selected;
+    if(sel)usedClipKeys.add(sel);
+  });
   allHeroes.forEach(function(c){
+    const clipKey=c.ep_id+"_"+c.num;
+    if(usedClipKeys.has(clipKey))return; // skip already used
     if(!byEp[c.ep_id])byEp[c.ep_id]={nombre:c.ep_nombre,clips:[]};
     byEp[c.ep_id].clips.push(c);
   });
