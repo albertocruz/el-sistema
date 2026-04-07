@@ -340,11 +340,24 @@ function fi(arr){
   return r;
 }
 // Override item date with effective date for display
+function getSemanaForDate(fecha){
+  // Find which semana this date belongs to
+  const match=ITEMS.find(function(i){return i.fecha===fecha;});
+  if(match)return match.semana;
+  // Estimate based on proximity
+  const sorted=[...new Set(ITEMS.map(i=>i.fecha))].sort();
+  const semanas=ITEMS.reduce(function(acc,i){acc[i.fecha]=i.semana;return acc;},{});
+  for(let k=sorted.length-1;k>=0;k--){if(sorted[k]<=fecha)return semanas[sorted[k]]||'S?';}
+  return 'S?';
+}
 function itemsWithEffectiveDates(arr){
   return arr.map(function(i){
     const ef=getEffectiveDate(i);
     const efd=getEffectiveFechaDisplay(i);
-    if(ef!==i.fecha)return Object.assign({},i,{fecha:ef,fecha_display:efd});
+    if(ef!==i.fecha){
+      const newSem=getSemanaForDate(ef);
+      return Object.assign({},i,{fecha:ef,fecha_display:efd,semana:newSem});
+    }
     return i;
   });
 }
