@@ -289,8 +289,13 @@ function setRole(r){
   document.getElementById('rp').textContent={alberto:'Alberto',agustin:'Agust\u00edn',video:'Erick\u00b7Ximena',diseno:'Zara\u00b7Karla'}[r]||r;
   // Show/hide platform filter bar
   document.getElementById('pfb').style.display=(r==='alberto'||r==='agustin')?'flex':'none';
-  const f=ITEMS.filter(i=>i.fecha>=TODAY);
-  if(f.length)sem=f[0].semana;
+  // Find current semana based on TODAY
+  const sorted=ITEMS.filter(i=>i.fecha>=TODAY).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  if(sorted.length){
+    sem=sorted[0].semana;
+  }else{
+    sem=SEMS[SEMS.length-1]||'S1';
+  }
   loadEstado();
 }
 function resetRole(){document.getElementById('rs').style.display='flex';document.getElementById('app').style.display='none';role=null;}
