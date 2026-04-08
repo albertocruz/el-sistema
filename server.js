@@ -7,7 +7,7 @@ client.on('error', err => console.log('Redis error:', err));
 client.connect().then(() => console.log('Redis conectado'));
 app.use(express.json());
 app.use(express.static(__dirname));
-app.get('/', (req, res) => res.redirect('/el_sistema_v7.html'));
+app.get('/', (req, res) => res.redirect('/el_sistema_v8.html'));
 app.get('/api/estado', async (req, res) => {try{const d=await client.get('estado');res.json(d?JSON.parse(d):{});}catch(e){res.json({});}});
 app.post('/api/estado', async (req, res) => {const{id,...data}=req.body;if(!id)return res.status(400).json({error:'id requerido'});try{const r=await client.get('estado');const e=r?JSON.parse(r):{};e[id]={...e[id],...data,updated_at:new Date().toISOString()};await client.set('estado',JSON.stringify(e));res.json({ok:true});}catch(e){res.status(500).json({error:e.message});}});
 app.listen(PORT, () => console.log('El Sistema en puerto', PORT));
