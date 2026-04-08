@@ -289,13 +289,8 @@ function setRole(r){
   document.getElementById('rp').textContent={alberto:'Alberto',agustin:'Agust\u00edn',video:'Erick\u00b7Ximena',diseno:'Zara\u00b7Karla'}[r]||r;
   // Show/hide platform filter bar
   document.getElementById('pfb').style.display=(r==='alberto'||r==='agustin')?'flex':'none';
-  // Find current semana based on TODAY
-  const sorted=ITEMS.filter(i=>i.fecha>=TODAY).sort((a,b)=>a.fecha.localeCompare(b.fecha));
-  if(sorted.length){
-    sem=sorted[0].semana;
-  }else{
-    sem=SEMS[SEMS.length-1]||'S1';
-  }
+  const f=ITEMS.filter(i=>i.fecha>=TODAY);
+  if(f.length)sem=f[0].semana;
   loadEstado();
 }
 function resetRole(){document.getElementById('rs').style.display='flex';document.getElementById('app').style.display='none';role=null;}
@@ -552,6 +547,269 @@ async function quitarTT(clipId,fecha,turno){
   await saveEstado(clipId,{tt_fecha:'',tt_turno:''});
   rLDMTT();
 }
+
+function rGrp(fecha,items,tipo){
+  if(!items.length)return'';
+  const s=items[0];
+  const isT=tipo==='hoy';
+  const isPast=tipo==='pasado';
+  let h='<div class="dh"><span class="dl'+(isT?' td':isPast?' past':'')+'">'+(isPast?'\u2190 ':'')+s.fecha_display+'</span><span class="dsm">'+s.semana+'</span>'+(isT?'<span class="dtd">HOY</span>':'')+'<span class="dc">'+items.length+'</span></div>';
+  // Deduplicate by id to avoid duplicate DOM elements
+  const seen=new Set();
+  items.forEach(function(i){if(!seen.has(i.id)){seen.add(i.id);h+=rCard(i);}});
+  return h;
+}
+function rCard(item){
+  const sc={BASICO:'B',DIOSES:'D',GENIO:'G'}[item.marca_short]||'B';
+  const ml={BASICO:'B\u00e1sico.fm',DIOSES:'Los Dioses',GENIO:'Genio.soy'}[item.marca_short]||item.marca;
+  const effSt=getEffectiveStatus(item);
+  const stC={Listo:'L','Por producir':'P','Por grabar':'G',Publicado:'PUB','Por arreglar':'ARR','En cola':'COL',Reprogramado:'REP'}[effSt]||'P';
+  const cpC={listo:'L',pendiente:'P',sin_copy:'S'}[item.copy_status]||'S';
+  let bg='';
+  if(item.formato==='HERO')bg+='<span class="bg bg-h">HERO</span>';
+  if(item.pauta)bg+='<span class="bg bg-p">Pauta</span>';
+  if(item.es_video&&item.formato!=='HERO')bg+='<span class="bg bg-v">Video</span>';
+  if(item.es_estatico)bg+='<span class="bg bg-e">Est\u00e1tico</span>';
+  const plats=getItemPlats(item);
+  let dots='<div class="pdots">';
+  plats.forEach(p=>{dots+='<span class="pdot pdot-'+p+(isPublishedOn(item.id,p)?' pub':' pend')+'" title="'+PLAT_LBL[p]+'"></span>';});
+  dots+='</div>';
+  const isExp=expId===item.id;
+  const eid=item.id;
+  let h='<div class="cd" id="c-'+eid+'">';
+  h+='<div class="ch" onclick="tog(\''+eid+'\')">';
+  h+='<div class="st st-'+sc+'"></div>';
+  h+='<div class="cb">';
+  h+='<div class="ct"><span class="mc mc-'+sc+'">'+ml+'</span><span class="mf"> \u00b7 '+item.formato+'</span>'+bg+'<span class="sg sg-'+stC+'">'+effSt+'</span></div>';
+  h+='<div class="tt2">'+item.titulo+'</div>';
+  h+='<div class="mt"><span class="mp">'+(item.quien_produce||'\u2014')+'</span>';
+  h+='<span class="ci"><span class="cdot cdot-'+cpC+'"></span><span class="cl cl-'+cpC+'">'+(cpC==='L'?'Copy \u2713':cpC==='P'?'Pendiente':'Sin copy')+'</span></span></div>';
+  h+=dots;
+  if(item.observaciones)h+='<div class="ob">'+item.observaciones+'</div>';
+  h+='</div></div>';
+  h+='<div class="dt'+(isExp?' on':'')+'" id="d-'+eid+'">'+(isExp?rDet(item):'')+'</div>';
+  h+='</div>';
+  return h;
+}
+
+function rDet(item){
+  let h='';
+  // Editable pleca
+  if(item.necesita_thumb||item.es_video){
+    const est=ESTADO[item.id]||{};
+    const pleca=est.pleca||item.pleca||'';
+    const plecas=item.hero_clips&&item.hero_clips.length&&item.hero_clips[0].plecas||[];
+    h+='<div class="ds"><div class="dl2">Pleca thumbnail \u2014 IG \u00b7 TikTok <span style="color:var(--or);cursor:pointer;font-size:9px;font-weight:700" onclick="editPleca(\''+item.id+'\')">editar</span></div>';
+    if(pleca&&pleca!=='PENDIENTE'&&pleca.length>1){
+      pleca.split('/').map(x=>x.trim()).filter(x=>x.length>1).forEach(x=>h+='<span class="pleca-pill">\u201c'+x+'\u201d</span>');
+    }else if(plecas.length){
+      plecas.forEach(x=>h+='<span class="pleca-pill">\u201c'+x+'\u201d</span>');
+    }else{
+      h+='<div class="pp-nd" onclick="editPleca(\''+item.id+'\')">Toca para agregar pleca...</div>';
+    }
+    h+='<div id="pleca-edit-'+item.id+'" style="display:none"><div class="pleca-edit-wrap"><input class="pleca-input" id="pleca-inp-'+item.id+'" placeholder="Escribe la pleca..." value="'+(pleca).replace(/"/g,'&quot;')+'"><button class="pleca-save-btn" onclick="savePleca(\''+item.id+'\')">Guardar</button></div></div>';
+    h+='</div>';
+  }
+  // HERO clip selector
+  if(item.formato==='HERO'){
+    h+=rHeroSelector(item);
+  }
+  // Design instructions
+  if((role==='diseno'||role==='alberto'||role==='agustin')&&item.es_estatico){
+    h+='<div class="ds"><div class="dl2">Instrucciones de dise\u00f1o</div>'+rIns(item)+'</div>';
+  }
+  // Actions
+  if(role==='alberto'||role==='agustin'){
+    h+=rAcciones(item);
+  }
+  h+=rCopy(item);
+  return h;
+}
+
+function rHeroSelector(item){
+  const est=ESTADO[item.id]||{};
+  const selectedClip=est.hero_clip_selected;
+  // Get all invitados with HERO clips
+  let h='<div class="ds"><div class="dl2">Clip HERO entregado por Ximena</div>';
+  // Show all available hero clips across all invitados
+  const allHeroes=[];
+  Object.keys(CLIP_BANK).forEach(function(epId){
+    const ep=CLIP_BANK[epId];
+    Object.keys(ep.clips).forEach(function(num){
+      const clip=ep.clips[num];
+      if(clip.es_hero){
+        allHeroes.push({ep_id:epId,ep_nombre:ep.nombre,num:num,contenido:clip.contenido,pleca:clip.pleca,plecas:clip.plecas||[],copy:clip.copy||{}});
+      }
+    });
+  });
+  // Group by invitado
+  const byEp={};
+  // Get all already-selected clip keys (excluding this item)
+  const usedClipKeys=new Set();
+  Object.keys(ESTADO).forEach(function(sid){
+    if(sid===item.id)return;
+    const sel=(ESTADO[sid]||{}).hero_clip_selected;
+    if(sel)usedClipKeys.add(sel);
+  });
+  allHeroes.forEach(function(c){
+    const clipKey=c.ep_id+"_"+c.num;
+    if(usedClipKeys.has(clipKey))return; // skip already used
+    if(!byEp[c.ep_id])byEp[c.ep_id]={nombre:c.ep_nombre,clips:[]};
+    byEp[c.ep_id].clips.push(c);
+  });
+  Object.keys(byEp).sort().forEach(function(epId){
+    const g=byEp[epId];
+    h+='<div style="font-size:10px;font-weight:700;color:var(--pu);margin:8px 0 4px">'+g.nombre+'</div>';
+    g.clips.forEach(function(c){
+      const clipKey=c.ep_id+'_'+c.num;
+      const isSel=selectedClip===clipKey;
+      h+='<div class="hcl'+(isSel?' selected':'')+'" onclick="selectHeroClip(\''+item.id+'\',\''+clipKey+'\',\''+c.ep_id+'\','+c.num+')">';
+      h+='<span class="hcn">CLIP '+c.num+'</span><strong style="font-size:11px">'+c.contenido+'</strong>';
+      if(c.pleca)h+='<div style="font-size:10px;color:var(--or);margin-top:3px">\u201c'+c.pleca+'\u201d</div>';
+      if(isSel)h+='<div style="font-size:10px;color:var(--gn);font-weight:700;margin-top:3px">\u2713 Seleccionado</div>';
+      h+='</div>';
+    });
+  });
+  h+='</div>';
+  return h;
+}
+
+async function selectHeroClip(itemId, clipKey, epId, clipNum){
+  await saveEstado(itemId,{hero_clip_selected:clipKey,hero_ep_id:epId,hero_clip_num:clipNum});
+  const det=document.getElementById('d-'+itemId);
+  if(det&&det.classList.contains('on')){det.innerHTML=rDet(ITEMS.find(i=>i.id===itemId));}
+}
+
+function rIns(item){
+  const I={Periodiquito:'<strong>Formato:</strong> 5 slides \u00b7 4:5<br><strong>B\u00e1sico:</strong> Fjalla One + Inter \u00b7 Naranja #E8632B<br><strong>Dioses:</strong> Bebas Neue + Playfair \u00b7 Naranja #E8632B','Hot Take':'Bebas Neue \u00b7 Naranja #E8632B \u00b7 Fondo negro \u00b7 1:1','Dato Visual':'Fjalla One \u00b7 N\u00famero h\u00e9roe \u00b7 1:1 \u00b7 fuente al pie',Teaser:'Oswald 700 \u00b7 Fondo #0A0A0A \u00b7 Source Serif 4 Naranja','Teaser programa':'Story \u00b7 9:16'};
+  return'<div class="ins">'+(I[item.formato]||'<span style="color:var(--tx3)">Ver mockups</span>')+'</div>';
+}
+
+function rAcciones(item){
+  const plats=getItemPlats(item);
+  const effSt=getEffectiveStatus(item);
+  const est=ESTADO[item.id]||{};
+  let h='<div class="ds"><div class="dl2">Publicar por plataforma</div><div class="plat-pub-grid">';
+  plats.forEach(function(p){
+    const pub=isPublishedOn(item.id,p);
+    h+='<button class="ppb ppb-'+p+(pub?' pub':'')+'" onclick="togglePlat(\''+item.id+'\',\''+p+'\')">'+(pub?'\u2713 ':'')+PLAT_LBL[p]+'</button>';
+  });
+  h+='</div></div>';
+  h+='<div class="ds"><div class="action-btns">';
+  if(effSt==='Por arreglar'){
+    if(est.notas)h='<div class="arr-badge">Por arreglar: '+est.notas+'</div>'+h;
+    h+='<button class="act-btn act-col" onclick="doEnCola(\''+item.id+'\')">Listo \u2014 En cola</button>';
+  }else if(effSt==='En cola'){
+    h+='<button class="act-btn act-rep" onclick="showReprogramar(\''+item.id+'\')">Asignar fecha</button>';
+  }else{
+    h+='<button class="act-btn act-arr" onclick="showArreglar(\''+item.id+'\')">Por arreglar</button>';
+    h+='<button class="act-btn act-rep" onclick="showReprogramar(\''+item.id+'\')">Reprogramar</button>';
+  }
+  h+='</div></div>';
+  return h;
+}
+
+async function togglePlat(itemId,plat){
+  const cur=isPublishedOn(itemId,plat);
+  const data={};data['pub_'+plat]=!cur;if(!cur)data['pub_'+plat+'_fecha']=TODAY;
+  await saveEstado(itemId,data);
+  const det=document.getElementById('d-'+itemId);
+  if(det&&det.classList.contains('on')){det.innerHTML=rDet(ITEMS.find(i=>i.id===itemId));}
+  renderAll();
+}
+function editPleca(id){
+  const w=document.getElementById('pleca-edit-'+id);
+  if(w){w.style.display=w.style.display==='none'?'block':'none';}
+  const inp=document.getElementById('pleca-inp-'+id);
+  if(inp)inp.focus();
+}
+async function savePleca(id){
+  const inp=document.getElementById('pleca-inp-'+id);
+  if(!inp)return;
+  await saveEstado(id,{pleca:inp.value.trim()});
+  const det=document.getElementById('d-'+id);
+  if(det&&det.classList.contains('on')){det.innerHTML=rDet(ITEMS.find(i=>i.id===id));}
+}
+
+function gct(item,tabId){
+  const est=ESTADO[item.id]||{};
+  // If hero clip selected, use that clip's copy
+  if(est.hero_clip_selected&&(item.formato==='HERO')){
+    const epId=est.hero_ep_id;
+    const clipNum=String(est.hero_clip_num);
+    const ep=CLIP_BANK[epId];
+    if(ep&&ep.clips[clipNum]){
+      const c=ep.clips[clipNum].copy||{};
+      if(tabId==='igfb')return c.igfb||'';
+      if(tabId==='li')return c.linkedin||'';
+      if(tabId==='tt')return c.tiktok||'';
+      if(tabId==='yt')return c.yt||'';
+    }
+  }
+  const c=item.copy||{};
+  if(tabId==='igfb')return c.igfb||'';
+  if(tabId==='li')return c.linkedin||c.linkedin_alberto||c.linkedin_fernanda||'';
+  if(tabId==='li_a')return c.linkedin_alberto||'';
+  if(tabId==='li_f')return c.linkedin_fernanda||'';
+  if(tabId==='tt')return c.tiktok||'';
+  if(tabId==='yt')return((c.yt_titulo||'')+(c.yt_desc?'\n\n'+c.yt_desc:'')).trim();
+  if(item.hero_clips&&item.hero_clips.length){const hc=item.hero_clips[0].copy||{};if(tabId==='igfb')return hc.igfb||'';if(tabId==='li')return hc.linkedin||'';if(tabId==='tt')return hc.tiktok||'';}
+  return'';
+}
+
+function rCopy(item){
+  if(item.copy_status==='pendiente')return'<div class="ds"><div class="dl2">Copy</div><div class="cpn">Pendiente</div></div>';
+  const plats=getItemPlats(item);
+  const tabs=[];
+  if(plats.includes('ig')||plats.includes('fb')){const t=gct(item,'igfb');if(t.length>10)tabs.push({id:'igfb',lbl:'IG \u00b7 FB'});}
+  if(plats.includes('li')){const t=gct(item,'li');if(t.length>10)tabs.push({id:'li',lbl:'LinkedIn'});}
+  const lia=item.copy&&item.copy.linkedin_alberto||'';
+  if(lia.length>10&&lia!==gct(item,'li'))tabs.push({id:'li_a',lbl:'LI Alberto'});
+  const lif=item.copy&&item.copy.linkedin_fernanda||'';
+  if(lif.length>10)tabs.push({id:'li_f',lbl:'LI Fernanda'});
+  if(plats.includes('tt')){const t=gct(item,'tt');if(t.length>10)tabs.push({id:'tt',lbl:'TikTok'});}
+  if(plats.includes('yt')){const t=gct(item,'yt');if(t.length>10)tabs.push({id:'yt',lbl:'YT Shorts'});}
+  if(!tabs.length)return'<div class="ds"><div class="dl2">Copy</div><div class="cno">No disponible a\u00fan</div></div>';
+  const act=cTabs[item.id]||tabs[0].id;
+  let h='<div class="ds"><div class="dl2">Copy</div><div class="cts">';
+  tabs.forEach(function(t){h+='<button class="ctb'+(t.id===act?' on':'')+'" onclick="setCT(\''+item.id+'\',\''+t.id+'\')">'+t.lbl+'</button>';});
+  h+='</div>';
+  tabs.forEach(function(t){
+    const txt=gct(item,t.id);
+    const safe=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    h+='<div class="cp'+(t.id===act?' on':'')+'" id="cp-'+item.id+'-'+t.id+'"><div class="cbox">'+safe+'</div><button class="cbtn" onclick="doCopy(this,\''+item.id+'\',\''+t.id+'\')">Copiar</button></div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+function tog(id){
+  const det=document.getElementById('d-'+id);
+  if(!det)return;
+  if(expId===id){det.classList.remove('on');det.innerHTML='';expId=null;return;}
+  if(expId){const p=document.getElementById('d-'+expId);if(p){p.classList.remove('on');p.innerHTML='';}}
+  expId=id;
+  const item=ITEMS.find(function(i){return i.id===id;});
+  if(!item)return;
+  det.innerHTML=rDet(item);
+  det.classList.add('on');
+  setTimeout(function(){det.scrollIntoView({behavior:'smooth',block:'nearest'});},60);
+}
+function setCT(itemId,t){
+  cTabs[itemId]=t;
+  const det=document.getElementById('d-'+itemId);
+  if(!det)return;
+  det.querySelectorAll('.ctb').forEach(function(b){const oc=b.getAttribute('onclick')||'';b.classList.toggle('on',oc.indexOf("'"+t+"'")>-1);});
+  det.querySelectorAll('.cp').forEach(function(p){p.classList.toggle('on',p.id==='cp-'+itemId+'-'+t);});
+}
+function doCopy(btn,itemId,tabId){
+  const item=ITEMS.find(function(i){return i.id===itemId;});
+  const txt=item?gct(item,tabId):'';
+  if(!txt){btn.textContent='Sin copy';return;}
+  navigator.clipboard.writeText(txt).then(function(){btn.textContent='\u2713 Copiado';btn.classList.add('ok');setTimeout(function(){btn.textContent='Copiar';btn.classList.remove('ok');},1500);}).catch(function(){btn.textContent='Copiar manualmente';});
+}
+function setSem(s){sem=s.trim();rSem();}
+
 
 function showArreglar(id){
   const item=ITEMS.find(i=>i.id===id);
