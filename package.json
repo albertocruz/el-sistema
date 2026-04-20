@@ -1,1 +1,20 @@
-{"name":"el-sistema","version":"3.0.0","scripts":{"start":"node server.js"},"dependencies":{"express":"^4.18.2","redis":"^4.6.10"}}
+{
+  "name": "el-sistema",
+  "version": "9.0.0",
+  "description": "El Sistema v9 — gestión editorial Básico.fm y Los Dioses del Marketing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "express": "^4.19.2",
+    "redis": "^4.7.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
