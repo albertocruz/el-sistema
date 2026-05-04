@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Sistema v10 · Básico.fm</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap');
+
+:root {
+  --bg: #0e0e0e;
+  --bg2: #161616;
+  --bg3: #1e1e1e;
+  --bg4: #252525;
+  --border: #2a2a2a;
+  --border2: #333;
+  --text: #e8e8e8;
+  --text2: #999;
+  --text3: #666;
+  --accent: #e8d5a3;
+  --accent2: #c4a35a;
+  --green: #4caf7d;
+  --blue: #5b9cf6;
+  --yellow: #f0b429;
+  --red: #e05c5c;
+  --gray: #888;
+  --purple: #9b7fe8;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 220px 1fr 380px;
+  grid-template-rows: 48px 1fr;
+  overflow: hidden;
+}
+
+/* ── TOPBAR ── */
+#topbar {
+  grid-column: 1 / -1;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 16px;
+}
+#topbar .logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 500;
+}
+#topbar .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border2); }
+#topbar .brand-tabs { display: flex; gap: 4px; }
+.brand-tab {
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: .08em;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text3);
+  border: 1px solid transparent;
+  transition: all .15s;
+  text-transform: uppercase;
+}
+.brand-tab.active { color: var(--accent); border-color: var(--accent2); background: rgba(232,213,163,.06); }
+.brand-tab:hover:not(.active) { color: var(--text2); border-color: var(--border2); }
+
+#topbar .spacer { flex: 1; }
+#topbar .stats {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text3);
+  display: flex;
+  gap: 16px;
+}
+#topbar .stats span { color: var(--text2); }
+#topbar .stats .val { color: var(--accent); }
+
+/* ── SIDEBAR ── */
+#sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.week-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  padding: 8px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text2);
+  transition: all .12s;
+  border: 1px solid transparent;
+}
+.week-btn:hover { background: var(--bg3); color: var(--text); }
+.week-btn.active { background: rgba(232,213,163,.07); color: var(--accent); border-color: rgba(232,213,163,.15); }
+.week-btn .wlabel { font-weight: 500; }
+.week-btn .wcount {
+  background: var(--bg4);
+  color: var(--text3);
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.week-btn.active .wcount { background: rgba(232,213,163,.1); color: var(--accent2); }
+
+.sidebar-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 2px;
+}
+.sidebar-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: var(--text3);
+  text-transform: uppercase;
+  padding: 4px 10px;
+}
+
+/* filter buttons */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 2px;
+}
+.filter-btn {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .06em;
+  padding: 3px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  transition: all .12s;
+  white-space: nowrap;
+}
+.filter-btn.active { border-color: var(--accent2); color: var(--accent); background: rgba(232,213,163,.05); }
+
+/* ── MAIN ── */
+#main {
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#main-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+#main-header h2 {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .1em;
+  color: var(--text);
+  text-transform: uppercase;
+}
+#main-header .range {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text3);
+}
+
+/* Cards */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all .15s;
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+.card:hover { border-color: var(--border2); background: var(--bg3); }
+.card.selected { border-color: var(--accent2); background: rgba(232,213,163,.04); }
+
+.card-date {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.card-date .dow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.card-date .dom {
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--text2);
+  line-height: 1;
+}
+.card-date .mon {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .06em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.card-body { min-width: 0; }
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+.fmt-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg4);
+  color: var(--text3);
+  border: 1px solid var(--border2);
+}
+.fmt-alberto { color: #7ec8e3; border-color: #2a4a55; background: #111e24; }
+.fmt-fernanda { color: #e3a6c0; border-color: #4a2435; background: #1e1118; }
+.fmt-agustin { color: #a6c47e; border-color: #2e4018; background: #131a0f; }
+.fmt-estatico { color: #b0a0d0; border-color: #352a50; background: #171125; }
+.fmt-hero { color: var(--yellow); border-color: #4a3800; background: #1a1400; }
+
+.plat-dots { display: flex; gap: 3px; align-items: center; }
+.plat-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--border2);
+}
+.plat-dot.on { background: var(--text3); }
+
+.card-title {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-pleca {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--text3);
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-thumb {
+  font-size: 10px;
+  color: var(--accent2);
+  font-style: italic;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: .8;
+}
+.card-producer {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  margin-top: 3px;
+}
+
+.card-status { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.status-pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.s-publicado { background: rgba(76,175,125,.12); color: var(--green); border: 1px solid rgba(76,175,125,.2); }
+.s-listo { background: rgba(91,156,246,.1); color: var(--blue); border: 1px solid rgba(91,156,246,.18); }
+.s-operativo { background: rgba(136,136,136,.1); color: var(--gray); border: 1px solid rgba(136,136,136,.15); }
+.s-nopublico { background: rgba(224,92,92,.1); color: var(--red); border: 1px solid rgba(224,92,92,.15); }
+.s-produccion { background: rgba(240,180,41,.1); color: var(--yellow); border: 1px solid rgba(240,180,41,.15); }
+
+.copy-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border2);
+}
+.copy-dot.has-copy { background: var(--green); }
+
+.pauta-tag {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(155,127,232,.1);
+  color: var(--purple);
+  border: 1px solid rgba(155,127,232,.2);
+}
+
+/* ── DETAIL PANEL ── */
+#detail {
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#detail-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text3);
+}
+#detail-empty .hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+#detail-content { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+#detail-header {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#detail-header .dh-row1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+#detail-header .dh-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .08em;
+}
+#detail-header .dh-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+#detail-header .dh-pleca {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--text2);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.dh-thumb {
+  background: rgba(196,163,90,.07);
+  border: 1px solid rgba(196,163,90,.15);
+  border-radius: 5px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+.dh-thumb .th-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 3px;
+}
+.dh-thumb .th-text {
+  font-size: 12px;
+  color: var(--accent);
+  font-style: italic;
+  line-height: 1.4;
+}
+.dh-info {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+#detail-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.dtab {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 9px 14px;
+  cursor: pointer;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all .12s;
+}
+.dtab:hover { color: var(--text2); }
+.dtab.active { color: var(--accent); border-bottom-color: var(--accent2); }
+#detail-copy {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+}
+.copy-block { display: none; }
+.copy-block.visible { display: block; }
+.copy-text {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  font-family: var(--sans);
+}
+.copy-text.empty {
+  color: var(--text3);
+  font-style: italic;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+}
+.yt-field { margin-bottom: 12px; }
+.yt-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
+
+/* Loading */
+#loading {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+#loading .l-logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent2);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading .l-msg {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: .1em;
+}
+
+/* Error state */
+#error-msg {
+  display: none;
+  position: fixed; inset: 0;
+  background: var(--bg);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--red);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="l-logo">El Sistema v10</div>
+  <div class="spinner"></div>
+  <div class="l-msg">Cargando datos...</div>
+</div>
+
+<div id="error-msg"></div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="logo">El Sistema · v10</div>
+  <div class="dot"></div>
+  <div class="brand-tabs">
+    <div class="brand-tab active" data-brand="BASICO">Básico.fm</div>
+    <div class="brand-tab" data-brand="DIOSES" style="opacity:.4;pointer-events:none">LDM</div>
+    <div class="brand-tab" data-brand="GENIO" style="opacity:.4;pointer-events:none">Genio</div>
+  </div>
+  <div class="spacer"></div>
+  <div class="stats" id="topstats"></div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-label">Semanas</div>
+  <div id="week-list"></div>
+  <div class="sidebar-sep"></div>
+  <div class="sidebar-label">Filtros</div>
+  <div class="sidebar-label" style="font-size:8px;margin-top:0">Formato</div>
+  <div class="filter-row" id="fmt-filters"></div>
+  <div class="sidebar-label" style="font-size:8px;margin-top:4px">Productor</div>
+  <div class="filter-row" id="prod-filters"></div>
+  <div class="sidebar-label" style="font-size:8px;margin-top:4px">Estado</div>
+  <div class="filter-row" id="status-filters"></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="main-header">
+    <h2 id="week-title">—</h2>
+    <div class="range" id="week-range"></div>
+  </div>
+  <div id="card-list"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail">
+  <div id="detail-empty">
+    <div class="hint">Selecciona una pieza</div>
+  </div>
+  <div id="detail-content">
+    <div id="detail-header">
+      <div class="dh-row1">
+        <span class="dh-date" id="dh-date"></span>
+        <span id="dh-status-pill"></span>
+        <span id="dh-fmt-badge"></span>
+        <span id="dh-pauta"></span>
+      </div>
+      <div class="dh-title" id="dh-title"></div>
+      <div class="dh-pleca" id="dh-pleca"></div>
+      <div class="dh-thumb" id="dh-thumb" style="display:none">
+        <div class="th-label">Thumbnail</div>
+        <div class="th-text" id="dh-thumb-text"></div>
+      </div>
+      <div class="dh-info" id="dh-info"></div>
+    </div>
+    <div id="detail-tabs"></div>
+    <div id="detail-copy"></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let ITEMS = [];
+let COPY = {};
+let selectedWeek = null;
+let selectedId = null;
+let activeFilters = { fmt: new Set(), prod: new Set(), status: new Set() };
+
+// ─────────────────────────────────────────────
+// LOAD
+// ─────────────────────────────────────────────
+async function loadData() {
+  try {
+    const [itemsRes, copyRes] = await Promise.all([
+      fetch('/api/data/basico_items'),
+      fetch('/api/data/basico_copy')
+    ]);
+    if (!itemsRes.ok || !copyRes.ok) throw new Error('Error al cargar datos');
+    ITEMS = await itemsRes.json();
+    COPY = await copyRes.json();
+    document.getElementById('loading').style.display = 'none';
+    init();
+  } catch(e) {
+    const el = document.getElementById('error-msg');
+    el.style.display = 'flex';
+    el.innerHTML = '<div>Error al cargar datos del servidor</div><div style="color:#666;margin-top:4px;font-size:9px">' + e.message + '</div>';
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function init() {
+  buildSidebar();
+  buildFilters();
+  updateStats();
+  // Select current or nearest week
+  const today = new Date();
+  const weeks = getWeeks();
+  let sel = weeks[0];
+  for (const w of weeks) {
+    const wd = parseDate(w.items[0].fecha);
+    if (wd <= today) sel = w;
+  }
+  selectWeek(sel.id);
+}
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function parseDate(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function getWeeks() {
+  const map = {};
+  for (const item of ITEMS) {
+    const w = item.semana;
+    if (!map[w]) map[w] = { id: w, items: [] };
+    map[w].items.push(item);
+  }
+  return Object.values(map).sort((a,b) => {
+    const n = x => parseInt(x.id.replace('S',''));
+    return n(a) - n(b);
+  });
+}
+
+function getFilteredItems(weekId) {
+  return ITEMS.filter(i => {
+    if (i.semana !== weekId) return false;
+    if (activeFilters.fmt.size > 0 && !activeFilters.fmt.has(i.formato)) return false;
+    if (activeFilters.prod.size > 0 && !activeFilters.prod.has(i.quien_produce)) return false;
+    if (activeFilters.status.size > 0 && !activeFilters.status.has(i.status)) return false;
+    return true;
+  });
+}
+
+function statusClass(s) {
+  if (s === 'Publicado') return 's-publicado';
+  if (s === 'Listo') return 's-listo';
+  if (s === 'Operativo') return 's-operativo';
+  if (s === 'No se publicó') return 's-nopublico';
+  return 's-produccion';
+}
+
+function fmtClass(fmt) {
+  if (fmt.includes('Alberto')) return 'fmt-alberto';
+  if (fmt.includes('Fernanda')) return 'fmt-fernanda';
+  if (fmt.includes('Agustín') || fmt.includes('Agustin')) return 'fmt-agustin';
+  if (fmt === 'HERO') return 'fmt-hero';
+  return 'fmt-estatico';
+}
+
+function platDots(plataformas) {
+  const plats = ['IG/FB', 'LinkedIn', 'YT Shorts', 'TikTok'];
+  return plats.map(p => `<div class="plat-dot ${plataformas.includes(p) ? 'on' : ''}"></div>`).join('');
+}
+
+function weekDateRange(items) {
+  const dates = items.map(i => parseDate(i.fecha));
+  const min = new Date(Math.min(...dates));
+  const max = new Date(Math.max(...dates));
+  const fmt = d => d.toLocaleDateString('es-MX', { day:'numeric', month:'short' });
+  return `${fmt(min)} – ${fmt(max)}`;
+}
+
+// ─────────────────────────────────────────────
+// SIDEBAR
+// ─────────────────────────────────────────────
+function buildSidebar() {
+  const weeks = getWeeks();
+  const list = document.getElementById('week-list');
+  list.innerHTML = '';
+  for (const w of weeks) {
+    const btn = document.createElement('div');
+    btn.className = 'week-btn';
+    btn.dataset.wid = w.id;
+    const pub = w.items.filter(i => i.status === 'Publicado').length;
+    btn.innerHTML = `<span class="wlabel">${w.id}</span><span class="wcount">${pub}/${w.items.length}</span>`;
+    btn.onclick = () => selectWeek(w.id);
+    list.appendChild(btn);
+  }
+}
+
+// ─────────────────────────────────────────────
+// FILTERS
+// ─────────────────────────────────────────────
+function buildFilters() {
+  const fmts = [...new Set(ITEMS.map(i => i.formato))].sort();
+  const prods = [...new Set(ITEMS.map(i => i.quien_produce))].filter(Boolean).sort();
+  const statuses = [...new Set(ITEMS.map(i => i.status))].sort();
+
+  renderFilterGroup('fmt-filters', fmts, 'fmt');
+  renderFilterGroup('prod-filters', prods, 'prod');
+  renderFilterGroup('status-filters', statuses, 'status');
+}
+
+function renderFilterGroup(containerId, values, type) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  for (const v of values) {
+    const btn = document.createElement('div');
+    btn.className = 'filter-btn';
+    btn.textContent = v;
+    btn.dataset.val = v;
+    btn.onclick = () => toggleFilter(type, v, btn);
+    el.appendChild(btn);
+  }
+}
+
+function toggleFilter(type, val, btn) {
+  if (activeFilters[type].has(val)) {
+    activeFilters[type].delete(val);
+    btn.classList.remove('active');
+  } else {
+    activeFilters[type].add(val);
+    btn.classList.add('active');
+  }
+  renderCards(selectedWeek);
+}
+
+// ─────────────────────────────────────────────
+// WEEK SELECT
+// ─────────────────────────────────────────────
+function selectWeek(wid) {
+  selectedWeek = wid;
+  // Update sidebar
+  document.querySelectorAll('.week-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.wid === wid);
+  });
+  // Update header
+  const items = ITEMS.filter(i => i.semana === wid);
+  document.getElementById('week-title').textContent = wid;
+  document.getElementById('week-range').textContent = weekDateRange(items);
+  renderCards(wid);
+}
+
+// ─────────────────────────────────────────────
+// RENDER CARDS
+// ─────────────────────────────────────────────
+function renderCards(wid) {
+  const items = getFilteredItems(wid);
+  const container = document.getElementById('card-list');
+  container.innerHTML = '';
+
+  if (items.length === 0) {
+    container.innerHTML = '<div style="color:var(--text3);font-family:var(--mono);font-size:10px;padding:20px;letter-spacing:.08em">Sin resultados con los filtros actuales.</div>';
+    return;
+  }
+
+  for (const item of items) {
+    const d = parseDate(item.fecha);
+    const dow = d.toLocaleDateString('es-MX', { weekday:'short' });
+    const dom = d.getDate();
+    const mon = d.toLocaleDateString('es-MX', { month:'short' });
+
+    const hasCopy = !!COPY[item.id];
+    const card = document.createElement('div');
+    card.className = 'card' + (item.id === selectedId ? ' selected' : '');
+    card.dataset.id = item.id;
+
+    card.innerHTML = `
+      <div class="card-date">
+        <div class="dow">${dow}</div>
+        <div class="dom">${dom}</div>
+        <div class="mon">${mon}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="fmt-badge ${fmtClass(item.formato)}">${item.formato}</span>
+          <div class="plat-dots">${platDots(item.plataformas)}</div>
+          ${item.pauta ? '<span class="pauta-tag">★ Pautar</span>' : ''}
+        </div>
+        <div class="card-title">${item.titulo || '—'}</div>
+        ${item.pleca ? `<div class="card-pleca">${item.pleca}</div>` : ''}
+        ${item.thumbnail ? `<div class="card-thumb">"${item.thumbnail}"</div>` : ''}
+        ${item.quien_produce ? `<div class="card-producer">${item.quien_produce}</div>` : ''}
+      </div>
+      <div class="card-status">
+        <span class="status-pill ${statusClass(item.status)}">${item.status}</span>
+        <div class="copy-dot ${hasCopy ? 'has-copy' : ''}" title="${hasCopy ? 'Copy disponible' : 'Sin copy'}"></div>
+      </div>
+    `;
+    card.onclick = () => selectItem(item.id);
+    container.appendChild(card);
+  }
+}
+
+// ─────────────────────────────────────────────
+// ITEM DETAIL
+// ─────────────────────────────────────────────
+function selectItem(id) {
+  selectedId = id;
+  // Update selected card visual
+  document.querySelectorAll('.card').forEach(c => c.classList.toggle('selected', c.dataset.id === id));
+
+  const item = ITEMS.find(i => i.id === id);
+  if (!item) return;
+
+  document.getElementById('detail-empty').style.display = 'none';
+  const dc = document.getElementById('detail-content');
+  dc.style.display = 'flex';
+
+  // Header
+  document.getElementById('dh-date').textContent = item.fecha_display;
+  document.getElementById('dh-title').textContent = item.titulo || '—';
+  document.getElementById('dh-pleca').textContent = item.pleca || '';
+
+  document.getElementById('dh-status-pill').innerHTML = `<span class="status-pill ${statusClass(item.status)}">${item.status}</span>`;
+  document.getElementById('dh-fmt-badge').innerHTML = `<span class="fmt-badge ${fmtClass(item.formato)}">${item.formato}</span>`;
+  document.getElementById('dh-pauta').innerHTML = item.pauta ? '<span class="pauta-tag">★ Pautar</span>' : '';
+
+  // Thumbnail
+  const thumbEl = document.getElementById('dh-thumb');
+  if (item.thumbnail && item.es_video) {
+    thumbEl.style.display = 'block';
+    document.getElementById('dh-thumb-text').textContent = item.thumbnail;
+  } else {
+    thumbEl.style.display = 'none';
+  }
+
+  // Info row
+  const info = document.getElementById('dh-info');
+  info.innerHTML = `
+    <span class="fmt-badge">${item.semana}</span>
+    <span class="fmt-badge">${item.plataformas}</span>
+    ${item.quien_produce ? `<span class="fmt-badge">${item.quien_produce}</span>` : ''}
+    ${item.observaciones ? `<span class="fmt-badge" style="color:var(--yellow)">${item.observaciones}</span>` : ''}
+  `;
+
+  // Copy tabs
+  buildCopyTabs(item);
+}
+
+function buildCopyTabs(item) {
+  const copy = COPY[item.id] || {};
+  const tabsEl = document.getElementById('detail-tabs');
+  const copyEl = document.getElementById('detail-copy');
+  tabsEl.innerHTML = '';
+  copyEl.innerHTML = '';
+
+  if (!item.es_video && !item.es_estatico) {
+    copyEl.innerHTML = '<div class="copy-text empty">Formato sin copy de plataforma.</div>';
+    return;
+  }
+
+  const tabs = [];
+
+  if (item.es_video) {
+    tabs.push({ id:'igfb', label:'IG/FB', content: copy.igfb });
+    tabs.push({ id:'linkedin', label:'LI Básico', content: copy.linkedin });
+    if (copy.linkedin_alberto) tabs.push({ id:'li_alb', label:'LI Alberto', content: copy.linkedin_alberto });
+    if (copy.linkedin_fernanda) tabs.push({ id:'li_fer', label:'LI Fernanda', content: copy.linkedin_fernanda });
+    if (copy.linkedin_agustin) tabs.push({ id:'li_ag', label:'LI Agustín', content: copy.linkedin_agustin });
+    tabs.push({ id:'tiktok', label:'TikTok', content: copy.tiktok });
+    tabs.push({ id:'yt', label:'YouTube', content: null, yt_titulo: copy.yt_titulo, yt_desc: copy.yt_desc });
+  } else {
+    // estático
+    tabs.push({ id:'igfb', label:'IG/FB', content: copy.igfb });
+    tabs.push({ id:'linkedin', label:'LinkedIn', content: copy.linkedin });
+  }
+
+  tabs.forEach((tab, idx) => {
+    const t = document.createElement('div');
+    t.className = 'dtab' + (idx === 0 ? ' active' : '');
+    t.textContent = tab.label;
+    t.dataset.tab = tab.id;
+    t.onclick = () => {
+      tabsEl.querySelectorAll('.dtab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      copyEl.querySelectorAll('.copy-block').forEach(x => x.classList.remove('visible'));
+      document.getElementById('cb-' + tab.id)?.classList.add('visible');
+    };
+    tabsEl.appendChild(t);
+
+    const block = document.createElement('div');
+    block.className = 'copy-block' + (idx === 0 ? ' visible' : '');
+    block.id = 'cb-' + tab.id;
+
+    if (tab.id === 'yt') {
+      block.innerHTML = `
+        <div class="yt-field">
+          <div class="yt-label">Título</div>
+          ${tab.yt_titulo ? `<div class="copy-text">${esc(tab.yt_titulo)}</div>` : '<div class="copy-text empty">Sin título</div>'}
+        </div>
+        <div class="yt-field">
+          <div class="yt-label">Descripción</div>
+          ${tab.yt_desc ? `<div class="copy-text">${esc(tab.yt_desc)}</div>` : '<div class="copy-text empty">Sin descripción</div>'}
+        </div>
+      `;
+    } else if (tab.content) {
+      block.innerHTML = `<div class="copy-text">${esc(tab.content)}</div>`;
+    } else {
+      block.innerHTML = `<div class="copy-text empty">Sin copy disponible</div>`;
+    }
+
+    copyEl.appendChild(block);
+  });
+
+  if (tabs.length === 0) {
+    copyEl.innerHTML = '<div class="copy-text empty">Sin copy de plataforma aún.</div>';
+  }
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─────────────────────────────────────────────
+// STATS
+// ─────────────────────────────────────────────
+function updateStats() {
+  const total = ITEMS.length;
+  const pub = ITEMS.filter(i => i.status === 'Publicado').length;
+  const listos = ITEMS.filter(i => i.status === 'Listo').length;
+  const withCopy = ITEMS.filter(i => COPY[i.id]).length;
+  document.getElementById('topstats').innerHTML = `
+    <span>${total} piezas</span>
+    <span class="val">${pub} publicadas</span>
+    <span>${listos} listas</span>
+    <span>${withCopy} con copy</span>
+  `;
+}
+
+// ─────────────────────────────────────────────
+// START
+// ─────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
