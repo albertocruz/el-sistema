@@ -511,6 +511,20 @@ body {
   color: var(--red);
 }
 
+/* Download button */
+#btn-download-items {
+  font-family: var(--mono); font-size: 10px; letter-spacing:.08em; text-transform:uppercase;
+  padding: 5px 12px; border-radius: 4px; cursor: pointer;
+  background: rgba(76,175,125,.1); color: var(--green);
+  border: 1px solid rgba(76,175,125,.2); transition: all .12s;
+}
+#btn-download-items:hover { background: rgba(76,175,125,.18); }
+#btn-download-items.dirty { background: rgba(240,180,41,.1); color: var(--yellow); border-color: rgba(240,180,41,.25); }
+
+/* Clickable status pill */
+.status-pill.clickable { cursor: pointer; user-select: none; }
+.status-pill.clickable:hover { filter: brightness(1.3); }
+
 /* Scrollbars */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -538,6 +552,7 @@ body {
   </div>
   <div class="spacer"></div>
   <div class="stats" id="topstats"></div>
+  <button id="btn-download-items" onclick="downloadItems()" style="display:none">↓ Guardar cambios</button>
 </div>
 
 <!-- SIDEBAR -->
@@ -812,7 +827,7 @@ function renderCards(wid) {
         ${item.quien_produce ? `<div class="card-producer">${item.quien_produce}</div>` : ''}
       </div>
       <div class="card-status">
-        <span class="status-pill ${statusClass(item.status)}">${item.status}</span>
+        <span class="status-pill clickable ${statusClass(item.status)}" data-id="${item.id}" onclick="cycleStatus(event,'${item.id}')">${item.status}</span>
         <div class="copy-dot ${hasCopy ? 'has-copy' : ''}" title="${hasCopy ? 'Copy disponible' : 'Sin copy'}"></div>
       </div>
     `;
@@ -956,6 +971,57 @@ function updateStats() {
     <span>${listos} listas</span>
     <span>${withCopy} con copy</span>
   `;
+}
+
+// ─────────────────────────────────────────────
+// STATUS CYCLE
+// ─────────────────────────────────────────────
+const STATUS_CYCLE = ['Listo', 'Publicado', 'No se publicó', 'Operativo'];
+let dirty = false;
+
+function cycleStatus(e, id) {
+  e.stopPropagation();
+  const item = ITEMS.find(i => i.id === id);
+  if (!item) return;
+  const idx = STATUS_CYCLE.indexOf(item.status);
+  item.status = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+  dirty = true;
+
+  // Update pill in card
+  const pill = e.target;
+  pill.className = `status-pill clickable ${statusClass(item.status)}`;
+  pill.textContent = item.status;
+
+  // Update detail panel if this item is open
+  if (selectedId === id) {
+    document.getElementById('dh-status-pill').innerHTML =
+      `<span class="status-pill ${statusClass(item.status)}">${item.status}</span>`;
+  }
+
+  // Update sidebar count
+  buildSidebar();
+  updateStats();
+
+  // Show download button
+  const btn = document.getElementById('btn-download-items');
+  btn.style.display = 'inline-block';
+  btn.classList.add('dirty');
+}
+
+// ─────────────────────────────────────────────
+// DOWNLOAD
+// ─────────────────────────────────────────────
+function downloadItems() {
+  const blob = new Blob([JSON.stringify(ITEMS, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'basico_items.json';
+  a.click();
+  dirty = false;
+  const btn = document.getElementById('btn-download-items');
+  btn.classList.remove('dirty');
+  btn.textContent = '✓ Descargado';
+  setTimeout(() => { btn.textContent = '↓ Guardar cambios'; }, 2000);
 }
 
 // ─────────────────────────────────────────────
