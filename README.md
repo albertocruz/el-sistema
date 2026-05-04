@@ -1,86 +1,134 @@
-# El Sistema v9
+# El Sistema v10
 
-App web de gestión editorial para **Básico.fm** y **Los Dioses del Marketing**. Express + Redis, desplegada en Railway.
+**Básico.fm · Los Dioses del Marketing · Genio.soy**
 
-## Archivos
+---
 
-- `el_sistema_v9.html` — app completa (1 sola página, ~1.3 MB con data embebida en base64)
-- `server.js` — servidor Express que sirve el HTML y expone `/api/estado`
-- `package.json` — dependencias (`express`, `compression`, `redis`)
+## Qué cambió de v9 a v10
 
-## Variables de entorno
+Los datos ya no viven dentro del HTML. Ahora están en archivos JSON separados en la carpeta `data/`. Esto significa:
 
-| Variable    | Obligatoria | Descripción                                                                 |
-|-------------|-------------|------------------------------------------------------------------------------|
-| `REDIS_URL` | sí (prod)   | URL de Redis (`redis://default:pass@trolley.proxy.rlwy.net:PUERTO`)          |
-| `PORT`      | no          | Puerto (Railway lo inyecta automáticamente; default 3000 en local)            |
-| `STATE_KEY` | no          | Llave Redis donde se guarda el estado (default `elsistema:v9:estado`)         |
-| `HTML_FILE` | no          | Nombre del HTML a servir (default `el_sistema_v9.html`)                       |
+- Actualizar un copy = editar un JSON → commit → push → listo.
+- El HTML carga los datos al abrirse (fetch al servidor).
+- El editor visual (`/editor`) te permite editar copys y reprogramar fechas sin tocar archivos.
 
-Sin `REDIS_URL` la app corre pero el estado no persiste entre reinicios (útil solo para desarrollo local).
+---
 
-## Endpoints
+## Estructura de archivos
 
-- `GET /` — sirve el HTML de la app
-- `GET /api/estado` — devuelve el estado actual `{items, tiktok}`
-- `POST /api/estado` — guarda el estado (body: `{items, tiktok}`)
-- `GET /api/estado/backup` — descarga el estado como JSON
-- `GET /health` — healthcheck (útil para Railway)
+```
+el-sistema/
+├── el_sistema_v10.html    ← App principal (Básico.fm)
+├── editor.html            ← Editor de copy y fechas
+├── server.js              ← Servidor Express
+├── package.json
+├── data/
+│   ├── basico_items.json  ← 76 piezas de Básico con thumbnails
+│   └── basico_copy.json   ← Copys por plataforma (keyed por item id)
+└── README.md
+```
 
-## Deploy en Railway
+---
 
-1. `git init && git add . && git commit -m "v9"`
-2. `git push` al repo `albertocruz/el-sistema`
-3. En Railway:
-   - Asegúrate de tener un servicio Redis linkeado y `REDIS_URL` apuntando a él
-   - El build debería detectar Node.js automáticamente (`npm install` y `npm start`)
-4. El healthcheck path sugerido es `/health`
+## Flujo de trabajo diario
 
-## Estructura del estado
+### Editar un copy
+
+1. Abre `el-sistema-production.up.railway.app/editor`
+2. Pestaña **Copy**
+3. Busca la pieza por formato, productor o semana
+4. Edita el texto directamente en el campo
+5. Cuando termines → botón **↓ Descargar copy** → te baja `basico_copy.json`
+6. Abre GitHub Desktop → arrastra el archivo a la carpeta `data/` del repo (reemplaza el existente)
+7. GitHub Desktop detecta el cambio → escribe un mensaje de commit → **Commit to main** → **Push origin**
+8. Railway redespliega automáticamente en ~60 segundos
+
+### Reprogramar fechas
+
+1. Abre `/editor` → pestaña **Reprogramar**
+2. Elige filtros: formato, productor, semana
+3. Elige cuántas semanas mover y en qué dirección
+4. Botón **Vista previa** → revisa las fechas antes de aplicar
+5. Botón **Aplicar cambios**
+6. Botón **↓ Descargar items** → te baja `basico_items.json`
+7. Sube al repo y push (mismo proceso que arriba)
+
+### Agregar thumbnail a una pieza sin thumbnail
+
+Misma pantalla del editor → pestaña **Thumbnail** dentro de cada pieza → escribe el texto → descarga → push.
+
+---
+
+## Indicadores en el editor
+
+| Indicador | Qué significa |
+|-----------|---------------|
+| ⚠ basura detectada | El copy tiene instrucciones del prompt coladas (limpiar antes de publicar) |
+| Punto verde en la card | La pieza ya tiene copy disponible |
+| Punto gris en la card | La pieza está sin copy aún |
+
+---
+
+## Agregar una pieza nueva (manual)
+
+Abre `data/basico_items.json` → al final del arreglo agrega un objeto siguiendo esta estructura:
 
 ```json
 {
-  "items": {
-    "<item_id>": {
-      "pleca": "...",
-      "status": "En preparación",
-      "platform_status": {"igfb":"publicado","linkedin":"publicado"},
-      "hero_clip": {"ep_id":"100","clip_num":5},
-      "fecha_efectiva": "2026-04-23",
-      "observaciones": "..."
-    }
-  },
-  "tiktok": {
-    "2026-04-20_manana": {"ep_id":"100","clip_num":3},
-    "2026-04-20_manana__published": true,
-    "2026-04-20_noche": {"ep_id":"101","clip_num":7}
-  }
+  "id": "2026-07-07_BASICO_Video_Alberto_G17",
+  "fecha": "2026-07-07",
+  "fecha_display": "Mar 7 Jul",
+  "semana": "S16",
+  "marca": "Básico.fm",
+  "marca_short": "BASICO",
+  "formato": "Video Alberto",
+  "titulo": "Título del video",
+  "pleca": "PLECA EN MAYÚSCULAS",
+  "thumbnail": "Texto del thumbnail.",
+  "plataformas": "IG/FB · LinkedIn · YT Shorts · TikTok",
+  "es_video": true,
+  "es_estatico": false,
+  "necesita_thumb": true,
+  "copy_status": "sin_copy",
+  "copy": {},
+  "status": "Listo",
+  "quien_produce": "Alberto",
+  "hero_clips": [],
+  "observaciones": "",
+  "pauta": false,
+  "id_pieza": "G17"
 }
 ```
 
-Solo se guardan overrides respecto a los datos base embebidos en el HTML. El HTML es fuente de verdad para el catálogo (164 items, 9 invitados, 284 clips TikTok, copys por pieza). El estado es solo la capa dinámica.
+Guarda → commit → push.
 
-## Si necesitas regenerar el HTML
+---
 
-El HTML tiene los 6 JSON codificados en base64 dentro de `<script type="text/plain" id="data-...">`. Para regenerar con data nueva:
+## Variables de entorno en Railway
 
-1. Actualiza los JSON (`V9_ITEMS_164.json`, `V9_CLIP_BANK.json`, etc.)
-2. Codifica cada uno a base64 y reemplaza el contenido del script correspondiente
-3. O usa el builder (`build.py`) del proyecto
+| Variable | Valor |
+|----------|-------|
+| `REDIS_URL` | URL de tu instancia Redis |
+| `PORT` | Railway lo asigna automáticamente |
 
-## Roles
+---
 
-- **Alberto** y **Agustín**: acceso completo (todas las vistas, editar todo, TikTok)
-- **Erick · Ximena**: solo items de video (+ TikTok)
-- **Zara · Karla**: solo items estáticos
+## URLs
 
-Los roles se cambian desde la esquina superior derecha. El rol no se persiste — cada sesión empieza en Alberto.
+| URL | Qué es |
+|-----|--------|
+| `/` | App principal |
+| `/editor` | Editor de copy y fechas |
+| `/api/data` | Lista de archivos JSON disponibles |
+| `/api/data/basico_items` | Items de Básico |
+| `/api/data/basico_copy` | Copy de Básico |
 
-## Vistas
+---
 
-1. **Hoy** — Hoy + próximos 7 días + días 8–14
-2. **Semana** — Pills S1–S15, piezas agrupadas por día
-3. **Historial** — Fechas pasadas
-4. **Pendientes** — Agrupado por plataforma (IG/FB, LinkedIn, TikTok, YT Shorts)
-5. **Todo** — Todo el catálogo ordenado por fecha
-6. **LDM TikTok** — Calendario de 30 días desde 20 abr, slots mañana/noche, un invitado no se repite el mismo día
+## Estado de thumbnails
+
+- ✅ Video Alberto (G01–G16): completo
+- ✅ Video Fernanda T1 (G01–G15): completo
+- ✅ Video Fernanda T2 (G01–G11): completo
+- ⏳ Video Agustín (G01–G11): pendiente (copys no incluyen THUMBNAIL)
+- ⏳ Video Alberto T2 (AC01–AC11): pendiente (copys no incluyen THUMBNAIL)
