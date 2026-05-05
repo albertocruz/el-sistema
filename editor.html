@@ -6,193 +6,122 @@
 <title>El Sistema · Editor</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
-
-:root {
-  --bg: #0e0e0e; --bg2: #161616; --bg3: #1e1e1e; --bg4: #252525;
-  --border: #2a2a2a; --border2: #333;
-  --text: #e8e8e8; --text2: #999; --text3: #666;
-  --accent: #e8d5a3; --accent2: #c4a35a;
-  --green: #4caf7d; --blue: #5b9cf6; --yellow: #f0b429; --red: #e05c5c;
-  --warn: rgba(240,180,41,.12);
-  --mono: 'DM Mono', monospace; --sans: 'DM Sans', sans-serif;
+:root{
+  --bg:#0e0e0e;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;
+  --border:#2a2a2a;--border2:#333;
+  --text:#e8e8e8;--text2:#999;--text3:#666;
+  --accent:#e8d5a3;--accent2:#c4a35a;
+  --green:#4caf7d;--blue:#5b9cf6;--yellow:#f0b429;--red:#e05c5c;
+  --warn:rgba(240,180,41,.12);
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
-
-/* NAV */
-#nav {
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  height: 48px;
-  position: sticky; top: 0; z-index: 10;
-}
-.nav-logo { font-family: var(--mono); font-size: 11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
-.nav-tab {
-  font-family: var(--mono); font-size: 10px; letter-spacing:.08em; text-transform:uppercase;
-  padding: 6px 14px; border-radius: 4px; cursor: pointer;
-  color: var(--text3); border: 1px solid transparent; transition: all .12s;
-}
-.nav-tab:hover { color: var(--text2); border-color: var(--border2); }
-.nav-tab.active { color: var(--accent); border-color: var(--accent2); background: rgba(232,213,163,.05); }
-.nav-spacer { flex: 1; }
-#btn-download, #btn-download2 {
-  font-family: var(--mono); font-size: 10px; letter-spacing:.08em; text-transform:uppercase;
-  padding: 6px 16px; border-radius: 4px; cursor: pointer;
-  background: rgba(76,175,125,.12); color: var(--green);
-  border: 1px solid rgba(76,175,125,.2); transition: all .12s;
-}
-#btn-download:hover, #btn-download2:hover { background: rgba(76,175,125,.18); }
-.nav-hint { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing:.06em; }
-
-/* PANELS */
-.panel { display: none; padding: 20px; max-width: 1200px; margin: 0 auto; }
-.panel.active { display: block; }
-
-/* Panel: Copy Editor */
-.toolbar {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
-}
-.toolbar-label { font-family: var(--mono); font-size: 9px; letter-spacing:.12em; text-transform:uppercase; color:var(--text3); }
-select.tb-select {
-  font-family: var(--mono); font-size: 10px; background: var(--bg3); color: var(--text2);
-  border: 1px solid var(--border2); border-radius: 4px; padding: 5px 8px; cursor: pointer;
-}
-.tb-btn {
-  font-family: var(--mono); font-size: 9px; letter-spacing:.07em; text-transform:uppercase;
-  padding: 5px 10px; border-radius: 4px; cursor: pointer;
-  border: 1px solid var(--border2); color: var(--text3); transition: all .12s;
-  background: transparent;
-}
-.tb-btn:hover { border-color: var(--yellow); color: var(--yellow); }
-.tb-btn.active { border-color: var(--yellow); color: var(--yellow); background: rgba(240,180,41,.05); }
-.warn-count {
-  font-family: var(--mono); font-size: 9px; color: var(--yellow);
-  background: var(--warn); border: 1px solid rgba(240,180,41,.2);
-  padding: 3px 8px; border-radius: 3px;
-}
-
-.items-table { width: 100%; border-collapse: collapse; }
-.items-table th {
-  font-family: var(--mono); font-size: 9px; letter-spacing:.1em; text-transform:uppercase;
-  color: var(--text3); text-align:left; padding: 8px 10px;
-  border-bottom: 1px solid var(--border); white-space:nowrap;
-}
-.items-table td { padding: 0; border-bottom: 1px solid var(--border); vertical-align:top; }
-
-.row-meta { padding: 10px; min-width: 160px; }
-.row-date { font-family:var(--mono); font-size:10px; color:var(--text3); }
-.row-fmt { font-size:11px; font-weight:500; color:var(--text); margin: 2px 0; }
-.row-title { font-size:10px; color:var(--text2); }
-.row-thumb {
-  font-size:9px; font-style:italic; color:var(--accent2);
-  margin-top:3px; font-family:var(--mono);
-}
-.row-warn { background: var(--warn) !important; }
-
-.platform-tabs { display:flex; gap:0; border-bottom: 1px solid var(--border); padding: 0 8px; }
-.ptab {
-  font-family:var(--mono); font-size:9px; letter-spacing:.07em; text-transform:uppercase;
-  padding: 6px 10px; cursor:pointer; color:var(--text3);
-  border-bottom: 2px solid transparent; transition: all .1s;
-}
-.ptab:hover { color:var(--text2); }
-.ptab.active { color:var(--accent); border-bottom-color:var(--accent2); }
-
-.copy-editors { padding: 8px; }
-.copy-ed-block { display:none; }
-.copy-ed-block.visible { display:block; }
-
-.field-group { margin-bottom: 8px; }
-.field-label {
-  font-family:var(--mono); font-size:8px; letter-spacing:.12em; text-transform:uppercase;
-  color:var(--text3); margin-bottom:3px;
-}
-.copy-textarea {
-  width:100%; font-family:var(--sans); font-size:12px; line-height:1.5;
-  background:var(--bg3); color:var(--text); border:1px solid var(--border2);
-  border-radius:4px; padding:8px; resize:vertical; min-height:60px;
-  transition: border-color .12s;
-}
-.copy-textarea:focus { outline:none; border-color:var(--accent2); }
-.copy-textarea.has-warn { border-color:rgba(240,180,41,.4); background:rgba(240,180,41,.03); }
-.thumb-input {
-  width:100%; font-family:var(--sans); font-size:12px;
-  background:rgba(196,163,90,.05); color:var(--accent);
-  border:1px solid rgba(196,163,90,.2); border-radius:4px; padding:8px;
-  font-style:italic;
-}
-.thumb-input:focus { outline:none; border-color:var(--accent2); }
-
-/* Panel: Rescheduler */
-.sched-card {
-  background: var(--bg2); border: 1px solid var(--border); border-radius:8px; padding:20px;
-  max-width: 640px;
-}
-.sched-title { font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; }
-.form-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; align-items:center; }
-.form-row label { font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); min-width:100px; }
-.form-input {
-  font-family:var(--mono); font-size:11px; background:var(--bg3); color:var(--text);
-  border:1px solid var(--border2); border-radius:4px; padding:6px 10px; flex:1; min-width:160px;
-}
-.form-input:focus { outline:none; border-color:var(--accent2); }
-.form-hint { font-size:10px; color:var(--text3); font-family:var(--mono); }
-
-.preview-list {
-  background:var(--bg3); border:1px solid var(--border2); border-radius:5px;
-  padding:10px; margin: 12px 0; max-height:240px; overflow-y:auto;
-}
-.preview-row {
-  font-family:var(--mono); font-size:10px; padding:4px 0;
-  color:var(--text2); display:flex; gap:16px;
-  border-bottom:1px solid var(--border);
-}
-.preview-row:last-child { border-bottom:none; }
-.preview-row .old { color:var(--red); text-decoration:line-through; }
-.preview-row .new { color:var(--green); }
-.preview-row .label { color:var(--text3); flex:1; }
-
-.act-btns { display:flex; gap:8px; margin-top:12px; }
-.act-btn {
-  font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
-  padding:8px 18px; border-radius:5px; cursor:pointer; border:1px solid; transition: all .12s;
-}
-.act-btn-preview { color:var(--blue); border-color:rgba(91,156,246,.3); background:rgba(91,156,246,.08); }
-.act-btn-preview:hover { background:rgba(91,156,246,.14); }
-.act-btn-apply { color:var(--green); border-color:rgba(76,175,125,.3); background:rgba(76,175,125,.08); }
-.act-btn-apply:hover { background:rgba(76,175,125,.15); }
-.act-btn-apply:disabled { opacity:.4; cursor:default; }
-
-.msg-box {
-  font-family:var(--mono); font-size:10px; padding:8px 12px; border-radius:4px;
-  margin-top:8px; display:none;
-}
-.msg-ok { background:rgba(76,175,125,.1); color:var(--green); border:1px solid rgba(76,175,125,.2); }
-.msg-warn { background:var(--warn); color:var(--yellow); border:1px solid rgba(240,180,41,.2); }
-
-::-webkit-scrollbar { width:5px; height:5px; }
-::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
-
-/* Loading */
-#loading {
-  position:fixed; inset:0; background:var(--bg);
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
-}
-.spinner { width:20px; height:20px; border:2px solid var(--border2); border-top-color:var(--accent2); border-radius:50%; animation:spin .7s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-#loading .lmsg { font-family:var(--mono); font-size:10px; color:var(--text3); letter-spacing:.1em; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;}
+#nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;
+  display:flex;align-items:center;gap:16px;height:48px;position:sticky;top:0;z-index:10;}
+.nav-logo{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);}
+.nav-tab{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 14px;border-radius:4px;cursor:pointer;color:var(--text3);
+  border:1px solid transparent;transition:all .12s;}
+.nav-tab:hover{color:var(--text2);border-color:var(--border2);}
+.nav-tab.active{color:var(--accent);border-color:var(--accent2);background:rgba(232,213,163,.05);}
+.brand-sel{display:flex;gap:4px;}
+.bsel-btn{font-family:var(--mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+  padding:5px 12px;border-radius:4px;cursor:pointer;color:var(--text3);
+  border:1px solid var(--border2);transition:all .12s;}
+.bsel-btn.active{color:var(--accent);border-color:var(--accent2);background:rgba(232,213,163,.06);}
+.nav-spacer{flex:1;}
+#btn-dl-items,#btn-dl-copy{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:6px 14px;border-radius:4px;cursor:pointer;
+  background:rgba(76,175,125,.1);color:var(--green);border:1px solid rgba(76,175,125,.2);
+  transition:all .12s;}
+#btn-dl-items:hover,#btn-dl-copy:hover{background:rgba(76,175,125,.18);}
+.warn-count{font-family:var(--mono);font-size:9px;color:var(--yellow);
+  background:var(--warn);border:1px solid rgba(240,180,41,.2);padding:3px 8px;border-radius:3px;}
+.panel{display:none;padding:20px;max-width:1200px;margin:0 auto;}
+.panel.active{display:block;}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.toolbar-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);}
+select.tb-select{font-family:var(--mono);font-size:10px;background:var(--bg3);color:var(--text2);
+  border:1px solid var(--border2);border-radius:4px;padding:5px 8px;cursor:pointer;}
+.tb-btn{font-family:var(--mono);font-size:9px;letter-spacing:.07em;text-transform:uppercase;
+  padding:5px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border2);
+  color:var(--text3);transition:all .12s;background:transparent;}
+.tb-btn:hover{border-color:var(--yellow);color:var(--yellow);}
+.tb-btn.active{border-color:var(--yellow);color:var(--yellow);background:rgba(240,180,41,.05);}
+.items-table{width:100%;border-collapse:collapse;}
+.items-table th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.items-table td{padding:0;border-bottom:1px solid var(--border);vertical-align:top;}
+.row-meta{padding:10px;min-width:160px;}
+.row-date{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.row-fmt{font-size:11px;font-weight:500;color:var(--text);margin:2px 0;}
+.row-brand{font-family:var(--mono);font-size:9px;color:var(--text3);}
+.row-title{font-size:10px;color:var(--text2);}
+.row-thumb{font-size:9px;font-style:italic;color:var(--accent2);margin-top:3px;font-family:var(--mono);}
+.row-warn{background:var(--warn)!important;}
+.platform-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 8px;}
+.ptab{font-family:var(--mono);font-size:9px;letter-spacing:.07em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .1s;}
+.ptab:hover{color:var(--text2);}
+.ptab.active{color:var(--accent);border-bottom-color:var(--accent2);}
+.copy-editors{padding:8px;}
+.copy-ed-block{display:none;}
+.copy-ed-block.visible{display:block;}
+.field-group{margin-bottom:8px;}
+.field-label{font-family:var(--mono);font-size:8px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:3px;}
+.copy-textarea{width:100%;font-family:var(--sans);font-size:12px;line-height:1.5;
+  background:var(--bg3);color:var(--text);border:1px solid var(--border2);
+  border-radius:4px;padding:8px;resize:vertical;min-height:60px;transition:border-color .12s;}
+.copy-textarea:focus{outline:none;border-color:var(--accent2);}
+.copy-textarea.has-warn{border-color:rgba(240,180,41,.4);background:rgba(240,180,41,.03);}
+.thumb-input{width:100%;font-family:var(--sans);font-size:12px;
+  background:rgba(196,163,90,.05);color:var(--accent);border:1px solid rgba(196,163,90,.2);
+  border-radius:4px;padding:8px;font-style:italic;}
+.thumb-input:focus{outline:none;border-color:var(--accent2);}
+.sched-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:20px;max-width:640px;}
+.sched-title{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:16px;}
+.form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.form-row label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text3);min-width:100px;}
+.form-input{font-family:var(--mono);font-size:11px;background:var(--bg3);color:var(--text);
+  border:1px solid var(--border2);border-radius:4px;padding:6px 10px;flex:1;min-width:160px;}
+.form-input:focus{outline:none;border-color:var(--accent2);}
+.preview-list{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;
+  padding:10px;margin:12px 0;max-height:240px;overflow-y:auto;}
+.preview-row{font-family:var(--mono);font-size:10px;padding:4px 0;
+  color:var(--text2);display:flex;gap:16px;border-bottom:1px solid var(--border);}
+.preview-row:last-child{border-bottom:none;}
+.preview-row .old{color:var(--red);text-decoration:line-through;}
+.preview-row .new{color:var(--green);}
+.preview-row .label{color:var(--text3);flex:1;}
+.act-btns{display:flex;gap:8px;margin-top:12px;}
+.act-btn{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:8px 18px;border-radius:5px;cursor:pointer;border:1px solid;transition:all .12s;}
+.act-btn-preview{color:var(--blue);border-color:rgba(91,156,246,.3);background:rgba(91,156,246,.08);}
+.act-btn-apply{color:var(--green);border-color:rgba(76,175,125,.3);background:rgba(76,175,125,.08);}
+.act-btn-apply:disabled{opacity:.4;cursor:default;}
+.msg-box{font-family:var(--mono);font-size:10px;padding:8px 12px;border-radius:4px;margin-top:8px;display:none;}
+.msg-ok{background:rgba(76,175,125,.1);color:var(--green);border:1px solid rgba(76,175,125,.2);}
+.msg-warn{background:var(--warn);color:var(--yellow);border:1px solid rgba(240,180,41,.2);}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;}
+.spinner{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--accent2);
+  border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.lmsg{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.1em;}
 </style>
 </head>
 <body>
-
 <div id="loading">
   <div style="font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)">Editor · El Sistema</div>
   <div class="spinner"></div>
-  <div class="lmsg">Cargando datos...</div>
+  <div class="lmsg" id="lmsg">Cargando...</div>
 </div>
 
 <div id="nav" style="display:none">
@@ -200,441 +129,338 @@ select.tb-select {
   <div class="nav-tab active" data-panel="copy" onclick="showPanel('copy')">Copy</div>
   <div class="nav-tab" data-panel="sched" onclick="showPanel('sched')">Reprogramar</div>
   <div class="nav-spacer"></div>
-  <span class="nav-hint" id="warn-badge"></span>
-  <button id="btn-download" onclick="downloadItems()">↓ Descargar items</button>
-  <button id="btn-download2" onclick="downloadCopy()">↓ Descargar copy</button>
+  <div class="brand-sel">
+    <div class="bsel-btn active" data-brand="BASICO" onclick="setBrand('BASICO',this)">Básico</div>
+    <div class="bsel-btn active" data-brand="DIOSES" onclick="setBrand('DIOSES',this)">LDM</div>
+  </div>
+  <span id="warn-badge" style="font-family:var(--mono);font-size:9px;color:var(--text3)"></span>
+  <span class="warn-count" id="warn-total" style="display:none"></span>
+  <button id="btn-dl-items" onclick="downloadItems()">↓ Items</button>
+  <button id="btn-dl-copy" onclick="downloadCopy()">↓ Copy</button>
 </div>
 
-<!-- COPY PANEL -->
 <div class="panel active" id="panel-copy">
   <div class="toolbar">
     <span class="toolbar-label">Filtrar:</span>
-    <select class="tb-select" id="fil-fmt" onchange="applyFilters()">
-      <option value="">Todos los formatos</option>
-    </select>
-    <select class="tb-select" id="fil-prod" onchange="applyFilters()">
-      <option value="">Todos los productores</option>
-    </select>
-    <select class="tb-select" id="fil-week" onchange="applyFilters()">
-      <option value="">Todas las semanas</option>
-    </select>
+    <select class="tb-select" id="fil-fmt" onchange="applyFilters()"><option value="">Todos los formatos</option></select>
+    <select class="tb-select" id="fil-prod" onchange="applyFilters()"><option value="">Todos los productores</option></select>
+    <select class="tb-select" id="fil-week" onchange="applyFilters()"><option value="">Todas las semanas</option></select>
     <div class="tb-btn" id="btn-only-warn" onclick="toggleOnlyWarn()">Solo con basura</div>
-    <span class="warn-count" id="warn-total" style="display:none"></span>
+    <span class="warn-count" id="warn-count2" style="display:none"></span>
   </div>
   <table class="items-table">
-    <thead>
-      <tr>
-        <th style="width:180px">Pieza</th>
-        <th>Copy por plataforma</th>
-      </tr>
-    </thead>
+    <thead><tr><th style="width:180px">Pieza</th><th>Copy por plataforma</th></tr></thead>
     <tbody id="copy-table-body"></tbody>
   </table>
 </div>
 
-<!-- RESCHEDULE PANEL -->
 <div class="panel" id="panel-sched">
   <div class="sched-card">
     <div class="sched-title">Reprogramar en bloque</div>
-
+    <div class="form-row">
+      <label>Marca</label>
+      <select class="form-input" id="sched-brand">
+        <option value="">— Todas —</option>
+        <option value="BASICO">Básico.fm</option>
+        <option value="DIOSES">LDM</option>
+      </select>
+    </div>
     <div class="form-row">
       <label>Formato</label>
-      <select class="form-input" id="sched-fmt">
-        <option value="">— Todos —</option>
-      </select>
+      <select class="form-input" id="sched-fmt"><option value="">— Todos —</option></select>
     </div>
     <div class="form-row">
       <label>Productor</label>
-      <select class="form-input" id="sched-prod">
-        <option value="">— Todos —</option>
-      </select>
+      <select class="form-input" id="sched-prod"><option value="">— Todos —</option></select>
     </div>
     <div class="form-row">
       <label>Semana</label>
-      <select class="form-input" id="sched-week">
-        <option value="">— Todas —</option>
-      </select>
+      <select class="form-input" id="sched-week"><option value="">— Todas —</option></select>
     </div>
     <div class="form-row">
       <label>Mover</label>
-      <select class="form-input" id="sched-dir" style="max-width:120px">
+      <select class="form-input" id="sched-dir" style="max-width:130px">
         <option value="1">+ adelante</option>
         <option value="-1">− atrás</option>
       </select>
-      <select class="form-input" id="sched-weeks" style="max-width:120px">
+      <select class="form-input" id="sched-days" style="max-width:160px">
         <option value="7">1 semana (7d)</option>
         <option value="14">2 semanas (14d)</option>
         <option value="21">3 semanas (21d)</option>
         <option value="28">4 semanas (28d)</option>
       </select>
     </div>
-
     <div class="act-btns">
       <button class="act-btn act-btn-preview" onclick="previewSched()">Vista previa</button>
-      <button class="act-btn act-btn-apply" id="btn-apply" onclick="applySched()" disabled>Aplicar cambios</button>
+      <button class="act-btn act-btn-apply" id="btn-apply" onclick="applySched()" disabled>Aplicar</button>
     </div>
-
     <div class="preview-list" id="sched-preview" style="display:none"></div>
     <div class="msg-box msg-ok" id="sched-ok"></div>
     <div class="msg-box msg-warn" id="sched-warn"></div>
-
     <div style="margin-top:16px;font-family:var(--mono);font-size:9px;color:var(--text3);line-height:1.6">
-      Después de aplicar → descarga el JSON con el botón de arriba → súbelo al repo → push → Railway redespliega automáticamente.
+      Después de aplicar → ↓ Items → sube al repo → push → Railway redespliega.
     </div>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let ITEMS = [];
-let COPY = {};
-let filteredItems = [];
-let onlyWarn = false;
-let schedPreview = [];
+const BRAND_CFG={
+  BASICO:{items:'basico_items',copy:'basico_copy',label:'Básico.fm'},
+  DIOSES:{items:'ldm_items',copy:'ldm_copy',label:'LDM'},
+};
+const GARBAGE_RE=/NUEVO V\d+|Hook primera línea|hashtags.*car\.|^\s*·\s*NUEVO|\*Hook/m;
 
-const GARBAGE_RE = /NUEVO V\d+|Hook primera línea|hashtags.*car\.|^\s*·\s*NUEVO|\*Hook/m;
+let DATA={};
+let activeBrands=new Set(['BASICO','DIOSES']);
+let filteredItems=[];
+let onlyWarn=false;
+let schedPreview=[];
 
-// ─────────────────────────────────────────────
-// LOAD
-// ─────────────────────────────────────────────
-async function loadData() {
-  try {
-    const [ir, cr] = await Promise.all([
-      fetch('/api/data/basico_items'),
-      fetch('/api/data/basico_copy')
-    ]);
-    ITEMS = await ir.json();
-    COPY = await cr.json();
-    // Deep clone for editing
-    ITEMS = JSON.parse(JSON.stringify(ITEMS));
-    COPY = JSON.parse(JSON.stringify(COPY));
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('nav').style.display = 'flex';
+async function loadBrand(brand){
+  if(DATA[brand])return;
+  const cfg=BRAND_CFG[brand];
+  const[ir,cr]=await Promise.all([
+    fetch('/api/data/'+cfg.items),
+    fetch('/api/data/'+cfg.copy).catch(()=>null)
+  ]);
+  DATA[brand]={items:JSON.parse(JSON.stringify(await ir.json())),
+               copy:JSON.parse(JSON.stringify(cr&&cr.ok?await cr.json():{}))}
+}
+
+async function loadAll(){
+  try{
+    for(const b of['BASICO','DIOSES']){
+      document.getElementById('lmsg').textContent='Cargando '+BRAND_CFG[b].label+'...';
+      await loadBrand(b);
+    }
+    document.getElementById('loading').style.display='none';
+    document.getElementById('nav').style.display='flex';
     init();
-  } catch(e) {
-    document.getElementById('loading').innerHTML = `<div style="font-family:var(--mono);font-size:11px;color:var(--red)">Error al cargar datos</div><div style="font-size:10px;color:var(--text3);margin-top:6px">${e.message}</div>`;
+  }catch(e){
+    document.getElementById('loading').innerHTML=`<div style="font-family:var(--mono);font-size:11px;color:var(--red)">Error: ${e.message}</div>`;
   }
 }
 
-function init() {
-  buildSelectOptions();
-  applyFilters();
-  updateWarnBadge();
+function getAllItems(){
+  return[...activeBrands].flatMap(b=>DATA[b]?DATA[b].items:[])
+    .sort((a,b)=>a.fecha.localeCompare(b.fecha));
+}
+function getAllCopy(){
+  const m={};
+  for(const b of activeBrands)if(DATA[b])Object.assign(m,DATA[b].copy);
+  return m;
+}
+function getBrandOf(id){
+  for(const b of Object.keys(DATA))if(DATA[b].items.find(i=>i.id===id))return b;return null;
 }
 
-// ─────────────────────────────────────────────
-// SELECTS
-// ─────────────────────────────────────────────
-function buildSelectOptions() {
-  const fmts = [...new Set(ITEMS.map(i=>i.formato))].sort();
-  const prods = [...new Set(ITEMS.map(i=>i.quien_produce).filter(Boolean))].sort();
-  const weeks = [...new Set(ITEMS.map(i=>i.semana))].sort((a,b)=>+a.slice(1)-+b.slice(1));
+function setBrand(brand,el){
+  if(activeBrands.has(brand)&&activeBrands.size===1)return;
+  activeBrands.has(brand)?activeBrands.delete(brand):activeBrands.add(brand);
+  el.classList.toggle('active',activeBrands.has(brand));
+  rebuildSelects();applyFilters();updateWarnBadge();
+}
 
-  for (const sel of ['fil-fmt','sched-fmt']) {
-    const el = document.getElementById(sel);
-    fmts.forEach(f => { const o=document.createElement('option'); o.value=f; o.textContent=f; el.appendChild(o); });
-  }
-  for (const sel of ['fil-prod','sched-prod']) {
-    const el = document.getElementById(sel);
-    prods.forEach(p => { const o=document.createElement('option'); o.value=p; o.textContent=p; el.appendChild(o); });
-  }
-  for (const sel of ['fil-week','sched-week']) {
-    const el = document.getElementById(sel);
-    weeks.forEach(w => { const o=document.createElement('option'); o.value=w; o.textContent=w; el.appendChild(o); });
+function init(){rebuildSelects();applyFilters();updateWarnBadge();}
+
+function rebuildSelects(){
+  const items=getAllItems();
+  const fmts=[...new Set(items.map(i=>i.formato))].sort();
+  const prods=[...new Set(items.map(i=>i.quien_produce).filter(Boolean))].sort();
+  const weeks=[...new Set(items.map(i=>i.semana))].sort((a,b)=>+a.slice(1)-+b.slice(1));
+  for(const[sel,vals] of[['fil-fmt',fmts],['fil-prod',prods],['fil-week',weeks],
+                          ['sched-fmt',fmts],['sched-prod',prods],['sched-week',weeks]]){
+    const el=document.getElementById(sel);
+    const cur=el.value;
+    while(el.options.length>1)el.remove(1);
+    vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;el.appendChild(o);});
+    if(vals.includes(cur))el.value=cur;
   }
 }
 
-// ─────────────────────────────────────────────
-// FILTERS
-// ─────────────────────────────────────────────
-function applyFilters() {
-  const fmt = document.getElementById('fil-fmt').value;
-  const prod = document.getElementById('fil-prod').value;
-  const week = document.getElementById('fil-week').value;
-
-  filteredItems = ITEMS.filter(i => {
-    if (fmt && i.formato !== fmt) return false;
-    if (prod && i.quien_produce !== prod) return false;
-    if (week && i.semana !== week) return false;
-    if (onlyWarn && !hasGarbage(i)) return false;
+function applyFilters(){
+  const fmt=document.getElementById('fil-fmt').value;
+  const prod=document.getElementById('fil-prod').value;
+  const week=document.getElementById('fil-week').value;
+  filteredItems=getAllItems().filter(i=>{
+    if(fmt&&i.formato!==fmt)return false;
+    if(prod&&i.quien_produce!==prod)return false;
+    if(week&&i.semana!==week)return false;
+    if(onlyWarn&&!hasGarbage(i))return false;
     return true;
   });
-
-  renderTable();
-  updateWarnBadge();
+  renderTable();updateWarnBadge();
 }
 
-function toggleOnlyWarn() {
-  onlyWarn = !onlyWarn;
-  document.getElementById('btn-only-warn').classList.toggle('active', onlyWarn);
+function toggleOnlyWarn(){
+  onlyWarn=!onlyWarn;
+  document.getElementById('btn-only-warn').classList.toggle('active',onlyWarn);
   applyFilters();
 }
 
-function hasGarbage(item) {
-  const copy = COPY[item.id];
-  if (!copy) return false;
-  return Object.values(copy).some(v => typeof v === 'string' && GARBAGE_RE.test(v));
+function hasGarbage(item){
+  const copy=getAllCopy()[item.id];
+  return copy&&Object.values(copy).some(v=>typeof v==='string'&&GARBAGE_RE.test(v));
+}
+function fieldGarbage(v){return typeof v==='string'&&GARBAGE_RE.test(v);}
+
+function updateWarnBadge(){
+  const n=getAllItems().filter(hasGarbage).length;
+  const el=document.getElementById('warn-total'),el2=document.getElementById('warn-count2');
+  const badge=document.getElementById('warn-badge');
+  if(n>0){el.textContent=el2.textContent=n+' con basura';el.style.display=el2.style.display='inline';badge.textContent='';}
+  else{el.style.display=el2.style.display='none';badge.textContent='✓ limpio';}
 }
 
-function fieldHasGarbage(text) {
-  return typeof text === 'string' && GARBAGE_RE.test(text);
-}
-
-function updateWarnBadge() {
-  const n = ITEMS.filter(hasGarbage).length;
-  const el = document.getElementById('warn-total');
-  const badge = document.getElementById('warn-badge');
-  if (n > 0) {
-    el.textContent = `${n} piezas con basura editorial`;
-    el.style.display = 'inline';
-    badge.textContent = '⚠ ' + n + ' con basura';
-  } else {
-    el.style.display = 'none';
-    badge.textContent = '✓ Sin basura editorial';
-  }
-}
-
-// ─────────────────────────────────────────────
-// TABLE
-// ─────────────────────────────────────────────
-function renderTable() {
-  const tbody = document.getElementById('copy-table-body');
-  tbody.innerHTML = '';
-
-  for (const item of filteredItems) {
-    const copy = COPY[item.id] || {};
-    const warn = hasGarbage(item);
-
-    const tr = document.createElement('tr');
-    tr.className = warn ? 'row-warn' : '';
-
-    // Meta cell
-    const tdMeta = document.createElement('td');
-    tdMeta.innerHTML = `
-      <div class="row-meta">
-        <div class="row-date">${item.fecha_display} · ${item.semana}</div>
-        <div class="row-fmt">${item.formato}</div>
-        <div class="row-title">${item.titulo || '—'}</div>
-        ${item.thumbnail ? `<div class="row-thumb">"${item.thumbnail}"</div>` : ''}
-        ${warn ? '<div style="font-family:var(--mono);font-size:8px;color:var(--yellow);margin-top:4px;letter-spacing:.06em">⚠ basura detectada</div>' : ''}
-      </div>
-    `;
-
-    // Copy cell
-    const tdCopy = document.createElement('td');
-
-    // Build tabs
-    const fields = buildFields(item, copy);
-    const tabsHtml = fields.map((f,i) => `<div class="ptab ${i===0?'active':''}" onclick="switchTab(this,'${item.id}')">${f.label}</div>`).join('');
-
-    const editorsHtml = fields.map((f,i) => {
-      if (f.isThumb) {
-        return `<div class="copy-ed-block ${i===0?'visible':''}" data-field="thumb_${item.id}">
-          <div class="field-group">
-            <div class="field-label">Thumbnail</div>
-            <input class="thumb-input" data-id="${item.id}" data-field="thumbnail" value="${esc(item.thumbnail||'')}" oninput="updateThumb(this)" placeholder="Texto del thumbnail...">
-          </div>
-        </div>`;
-      }
-      return `<div class="copy-ed-block ${i===0?'visible':''}" data-field="${f.id}_${item.id}">
-        ${f.subfields.map(sf => `
-          <div class="field-group">
-            ${f.subfields.length > 1 ? `<div class="field-label">${sf.label}</div>` : ''}
-            <textarea class="copy-textarea ${fieldHasGarbage(copy[sf.key])?'has-warn':''}"
-              rows="${sf.rows||4}"
-              data-id="${item.id}" data-key="${sf.key}"
-              oninput="updateCopy(this)"
-              placeholder="Sin copy...">${esc(copy[sf.key]||'')}</textarea>
-          </div>
-        `).join('')}
-      </div>`;
+function renderTable(){
+  const tbody=document.getElementById('copy-table-body');tbody.innerHTML='';
+  const allCopy=getAllCopy();
+  for(const item of filteredItems){
+    const copy=allCopy[item.id]||{};
+    const warn=hasGarbage(item);
+    const brand=getBrandOf(item.id);
+    const tr=document.createElement('tr');tr.className=warn?'row-warn':'';
+    const tdMeta=document.createElement('td');
+    tdMeta.innerHTML=`<div class="row-meta">
+      <div class="row-date">${item.fecha_display} · ${item.semana}</div>
+      <div class="row-fmt">${item.formato}${item.id_pieza?' · '+item.id_pieza:''}</div>
+      ${brand?`<div class="row-brand">${BRAND_CFG[brand]?.label||brand}</div>`:''}
+      <div class="row-title">${esc(item.titulo)||'—'}</div>
+      ${item.thumbnail?`<div class="row-thumb">"${esc(item.thumbnail)}"</div>`:''}
+      ${warn?'<div style="font-family:var(--mono);font-size:8px;color:var(--yellow);margin-top:4px">⚠ basura</div>':''}
+    </div>`;
+    const tdCopy=document.createElement('td');
+    const fields=buildFields(item,copy);
+    const tabsHtml=fields.map((f,i)=>`<div class="ptab ${i===0?'active':''}" onclick="switchTab(this,'${item.id}')">${f.label}</div>`).join('');
+    const edsHtml=fields.map((f,i)=>{
+      if(f.isThumb)return`<div class="copy-ed-block ${i===0?'visible':''}"><div class="field-group"><div class="field-label">Thumbnail</div><input class="thumb-input" data-id="${item.id}" value="${esc(item.thumbnail||'')}" oninput="updateThumb(this)" placeholder="Texto del thumbnail..."></div></div>`;
+      return`<div class="copy-ed-block ${i===0?'visible':''}">${f.subfields.map(sf=>`<div class="field-group">${f.subfields.length>1?`<div class="field-label">${sf.label}</div>`:''}<textarea class="copy-textarea ${fieldGarbage(copy[sf.key])?'has-warn':''}" rows="${sf.rows||4}" data-id="${item.id}" data-key="${sf.key}" oninput="updateCopy(this)" placeholder="Sin copy...">${esc(copy[sf.key]||'')}</textarea></div>`).join('')}</div>`;
     }).join('');
-
-    tdCopy.innerHTML = `
-      <div class="platform-tabs">${tabsHtml}</div>
-      <div class="copy-editors" id="eds-${item.id}">${editorsHtml}</div>
-    `;
-
-    tr.appendChild(tdMeta);
-    tr.appendChild(tdCopy);
-    tbody.appendChild(tr);
+    tdCopy.innerHTML=`<div class="platform-tabs">${tabsHtml}</div><div class="copy-editors" id="eds-${item.id}">${edsHtml}</div>`;
+    tr.appendChild(tdMeta);tr.appendChild(tdCopy);tbody.appendChild(tr);
   }
 }
 
-function buildFields(item, copy) {
-  const fields = [];
-  if (item.es_video) {
-    if (item.thumbnail !== undefined) fields.push({ id:'thumb', label:'Thumbnail', isThumb:true });
-    fields.push({ id:'igfb', label:'IG/FB', subfields:[{key:'igfb',rows:4}] });
-    fields.push({ id:'li', label:'LinkedIn', subfields:[
+function buildFields(item,copy){
+  const f=[];
+  if(item.es_video){
+    if(item.thumbnail!==undefined)f.push({id:'th',label:'Thumb',isThumb:true});
+    f.push({id:'igfb',label:'IG/FB',subfields:[{key:'igfb',rows:4}]});
+    f.push({id:'li',label:'LinkedIn',subfields:[
       {key:'linkedin',label:'Básico LinkedIn',rows:3},
       {key:'linkedin_alberto',label:'Alberto LinkedIn',rows:3},
       ...(copy.linkedin_fernanda!==undefined?[{key:'linkedin_fernanda',label:'Fernanda LinkedIn',rows:3}]:[]),
       ...(copy.linkedin_agustin!==undefined?[{key:'linkedin_agustin',label:'Agustín LinkedIn',rows:3}]:[]),
     ]});
-    fields.push({ id:'tt', label:'TikTok', subfields:[{key:'tiktok',rows:3}] });
-    fields.push({ id:'yt', label:'YouTube', subfields:[
-      {key:'yt_titulo',label:'Título',rows:1},
-      {key:'yt_desc',label:'Descripción',rows:3},
-    ]});
-  } else {
-    fields.push({ id:'igfb', label:'IG/FB', subfields:[{key:'igfb',rows:4}] });
-    fields.push({ id:'li', label:'LinkedIn', subfields:[{key:'linkedin',rows:3}] });
+    f.push({id:'tt',label:'TikTok',subfields:[{key:'tiktok',rows:3}]});
+    f.push({id:'yt',label:'YouTube',subfields:[{key:'yt_titulo',label:'Título',rows:1},{key:'yt_desc',label:'Descripción',rows:3}]});
+  }else{
+    f.push({id:'igfb',label:'IG/FB',subfields:[{key:'igfb',rows:4}]});
+    f.push({id:'li',label:'LinkedIn',subfields:[{key:'linkedin',rows:3}]});
   }
-  return fields;
+  return f;
 }
 
-function switchTab(el, itemId) {
-  const container = el.closest('td');
-  container.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+function switchTab(el,itemId){
+  el.closest('td').querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  const tabIdx = [...el.parentElement.children].indexOf(el);
-  const eds = document.getElementById('eds-' + itemId);
-  eds.querySelectorAll('.copy-ed-block').forEach((b,i) => b.classList.toggle('visible', i===tabIdx));
+  const idx=[...el.parentElement.children].indexOf(el);
+  document.getElementById('eds-'+itemId).querySelectorAll('.copy-ed-block').forEach((b,i)=>b.classList.toggle('visible',i===idx));
 }
 
-function updateCopy(el) {
-  const id = el.dataset.id;
-  const key = el.dataset.key;
-  if (!COPY[id]) COPY[id] = {};
-  COPY[id][key] = el.value;
-  el.classList.toggle('has-warn', fieldHasGarbage(el.value));
+function updateCopy(el){
+  const id=el.dataset.id,key=el.dataset.key,brand=getBrandOf(id);
+  if(!brand)return;
+  if(!DATA[brand].copy[id])DATA[brand].copy[id]={};
+  DATA[brand].copy[id][key]=el.value;
+  el.classList.toggle('has-warn',fieldGarbage(el.value));
   updateWarnBadge();
 }
 
-function updateThumb(el) {
-  const id = el.dataset.id;
-  const item = ITEMS.find(i => i.id === id);
-  if (item) item.thumbnail = el.value;
+function updateThumb(el){
+  const id=el.dataset.id,brand=getBrandOf(id);
+  if(!brand)return;
+  const item=DATA[brand].items.find(i=>i.id===id);
+  if(item)item.thumbnail=el.value;
 }
 
-function esc(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// ─────────────────────────────────────────────
-// RESCHEDULE
-// ─────────────────────────────────────────────
-function parseDate(s) {
-  const [y,m,d] = s.split('-').map(Number);
-  return new Date(y,m-1,d);
-}
-function formatDate(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${dd}`;
-}
-function formatDisplay(d) {
-  return d.toLocaleDateString('es-MX',{weekday:'short',day:'numeric',month:'short'});
-}
+// ── RESCHEDULE ────────────────────────────────
+function parseDate(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function formatDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function formatDisplay(d){const DAYS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],MONTHS=['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return DAYS[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()+1];}
 
-function getSchedItems() {
-  const fmt = document.getElementById('sched-fmt').value;
-  const prod = document.getElementById('sched-prod').value;
-  const week = document.getElementById('sched-week').value;
-  return ITEMS.filter(i => {
-    if (fmt && i.formato !== fmt) return false;
-    if (prod && i.quien_produce !== prod) return false;
-    if (week && i.semana !== week) return false;
+function getSchedItems(){
+  const brand=document.getElementById('sched-brand').value;
+  const fmt=document.getElementById('sched-fmt').value;
+  const prod=document.getElementById('sched-prod').value;
+  const week=document.getElementById('sched-week').value;
+  return getAllItems().filter(i=>{
+    if(brand&&getBrandOf(i.id)!==brand)return false;
+    if(fmt&&i.formato!==fmt)return false;
+    if(prod&&i.quien_produce!==prod)return false;
+    if(week&&i.semana!==week)return false;
     return true;
   });
 }
 
-function previewSched() {
-  const items = getSchedItems();
-  const dir = parseInt(document.getElementById('sched-dir').value);
-  const days = parseInt(document.getElementById('sched-weeks').value) * dir;
-
-  const warn = document.getElementById('sched-warn');
-  const ok = document.getElementById('sched-ok');
-  warn.style.display = 'none'; ok.style.display = 'none';
-
-  if (items.length === 0) {
-    warn.textContent = 'No hay piezas que coincidan con los filtros.';
-    warn.style.display = 'block';
-    document.getElementById('btn-apply').disabled = true;
-    return;
-  }
-
-  schedPreview = items.map(i => {
-    const oldDate = parseDate(i.fecha);
-    const newDate = new Date(oldDate.getTime() + days * 86400000);
-    return {
-      id: i.id,
-      fmt: i.formato,
-      titulo: i.titulo,
-      oldFecha: i.fecha,
-      newFecha: formatDate(newDate),
-      newDisplay: formatDisplay(newDate),
-      oldDisplay: i.fecha_display,
-    };
+function previewSched(){
+  const items=getSchedItems();
+  const dir=parseInt(document.getElementById('sched-dir').value);
+  const days=parseInt(document.getElementById('sched-days').value)*dir;
+  const warn=document.getElementById('sched-warn'),ok=document.getElementById('sched-ok');
+  warn.style.display='none';ok.style.display='none';
+  if(!items.length){warn.textContent='Sin piezas con esos filtros.';warn.style.display='block';document.getElementById('btn-apply').disabled=true;return;}
+  schedPreview=items.map(i=>{
+    const nd=new Date(parseDate(i.fecha).getTime()+days*86400000);
+    return{id:i.id,fmt:i.formato,titulo:i.titulo,oldDisplay:i.fecha_display,newFecha:formatDate(nd),newDisplay:formatDisplay(nd)};
   });
-
-  const pl = document.getElementById('sched-preview');
-  pl.style.display = 'block';
-  pl.innerHTML = schedPreview.map(p => `
-    <div class="preview-row">
-      <span class="label">${p.fmt} · ${p.titulo?.slice(0,35)||'—'}</span>
-      <span class="old">${p.oldDisplay}</span>
-      <span class="new">→ ${p.newDisplay}</span>
-    </div>
-  `).join('');
-
-  document.getElementById('btn-apply').disabled = false;
+  const pl=document.getElementById('sched-preview');pl.style.display='block';
+  pl.innerHTML=schedPreview.map(p=>`<div class="preview-row"><span class="label">${p.fmt} · ${(p.titulo||'').slice(0,35)}</span><span class="old">${p.oldDisplay}</span><span class="new">→ ${p.newDisplay}</span></div>`).join('');
+  document.getElementById('btn-apply').disabled=false;
 }
 
-function applySched() {
-  if (schedPreview.length === 0) return;
-  for (const p of schedPreview) {
-    const item = ITEMS.find(i => i.id === p.id);
-    if (!item) continue;
-    item.fecha = p.newFecha;
-    item.fecha_display = p.newDisplay;
-    // Update semana based on new date (keep as is; user can adjust if needed)
+function applySched(){
+  if(!schedPreview.length)return;
+  for(const p of schedPreview){
+    const brand=getBrandOf(p.id);if(!brand)continue;
+    const item=DATA[brand].items.find(i=>i.id===p.id);if(!item)continue;
+    item.fecha=p.newFecha;item.fecha_display=p.newDisplay;
   }
-  const ok = document.getElementById('sched-ok');
-  ok.textContent = `✓ ${schedPreview.length} piezas reprogramadas. Descarga el JSON actualizado arriba.`;
-  ok.style.display = 'block';
-  document.getElementById('sched-preview').style.display = 'none';
-  document.getElementById('btn-apply').disabled = true;
-  schedPreview = [];
+  const ok=document.getElementById('sched-ok');
+  ok.textContent='✓ '+schedPreview.length+' piezas reprogramadas. Descarga Items arriba.';
+  ok.style.display='block';
+  document.getElementById('sched-preview').style.display='none';
+  document.getElementById('btn-apply').disabled=true;
+  schedPreview=[];
 }
 
-// ─────────────────────────────────────────────
-// DOWNLOAD
-// ─────────────────────────────────────────────
-function downloadItems() {
-  const blob = new Blob([JSON.stringify(ITEMS, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'basico_items.json';
-  a.click();
+// ── DOWNLOAD ─────────────────────────────────
+function downloadItems(){
+  for(const b of activeBrands){
+    if(!DATA[b])continue;
+    const blob=new Blob([JSON.stringify(DATA[b].items,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=BRAND_CFG[b].items+'.json';a.click();
+  }
+}
+function downloadCopy(){
+  for(const b of activeBrands){
+    if(!DATA[b])continue;
+    const blob=new Blob([JSON.stringify(DATA[b].copy,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=BRAND_CFG[b].copy+'.json';a.click();
+  }
 }
 
-function downloadCopy() {
-  const blob = new Blob([JSON.stringify(COPY, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'basico_copy.json';
-  a.click();
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active',t.dataset.panel===id));
 }
 
-// ─────────────────────────────────────────────
-// PANEL SWITCH
-// ─────────────────────────────────────────────
-function showPanel(id) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + id).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.panel === id));
-}
-
-// ─────────────────────────────────────────────
-// START
-// ─────────────────────────────────────────────
-loadData();
+loadAll();
 </script>
 </body>
 </html>
