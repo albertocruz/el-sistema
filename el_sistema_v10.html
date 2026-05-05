@@ -818,6 +818,7 @@ function renderCards(wid) {
       <div class="card-body">
         <div class="card-meta">
           <span class="fmt-badge ${fmtClass(item.formato)}">${item.formato}</span>
+          ${item.id_pieza ? `<span class="fmt-badge" style="color:var(--accent2);border-color:rgba(196,163,90,.2)">${item.id_pieza}</span>` : ''}
           <div class="plat-dots">${platDots(item.plataformas)}</div>
           ${item.pauta ? '<span class="pauta-tag">★ Pautar</span>' : ''}
         </div>
