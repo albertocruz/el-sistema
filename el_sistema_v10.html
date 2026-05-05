@@ -546,8 +546,8 @@ body {
   <div class="logo">El Sistema · v10</div>
   <div class="dot"></div>
   <div class="brand-tabs">
-    <div class="brand-tab active" data-brand="BASICO">Básico.fm</div>
-    <div class="brand-tab" data-brand="DIOSES" style="opacity:.4;pointer-events:none">LDM</div>
+    <div class="brand-tab active" data-brand="BASICO" onclick="switchBrand('BASICO',this)">Básico.fm</div>
+    <div class="brand-tab" data-brand="DIOSES" onclick="switchBrand('DIOSES',this)">LDM</div>
     <div class="brand-tab" data-brand="GENIO" style="opacity:.4;pointer-events:none">Genio</div>
   </div>
   <div class="spacer"></div>
@@ -613,25 +613,51 @@ let COPY = {};
 let selectedWeek = null;
 let selectedId = null;
 let activeFilters = { fmt: new Set(), prod: new Set(), status: new Set() };
+let currentBrand = 'BASICO';
+
+const BRAND_FILES = {
+  BASICO: { items: 'basico_items', copy: 'basico_copy' },
+  DIOSES: { items: 'ldm_items',    copy: 'ldm_copy' },
+};
+
+// ─────────────────────────────────────────────
+// BRAND SWITCH
+// ─────────────────────────────────────────────
+async function switchBrand(brand, el) {
+  if (brand === currentBrand) return;
+  currentBrand = brand;
+  document.querySelectorAll('.brand-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  selectedWeek = null;
+  selectedId = null;
+  activeFilters = { fmt: new Set(), prod: new Set(), status: new Set() };
+  document.getElementById('detail-empty').style.display = 'flex';
+  document.getElementById('detail-content').style.display = 'none';
+  document.getElementById('btn-download-items').style.display = 'none';
+  dirty = false;
+  await loadData();
+}
 
 // ─────────────────────────────────────────────
 // LOAD
 // ─────────────────────────────────────────────
 async function loadData() {
+  const files = BRAND_FILES[currentBrand];
+  document.getElementById('loading').style.display = 'flex';
   try {
     const [itemsRes, copyRes] = await Promise.all([
-      fetch('/api/data/basico_items'),
-      fetch('/api/data/basico_copy')
+      fetch('/api/data/' + files.items),
+      fetch('/api/data/' + files.copy).catch(() => ({ ok: true, json: async () => ({}) }))
     ]);
-    if (!itemsRes.ok || !copyRes.ok) throw new Error('Error al cargar datos');
+    if (!itemsRes.ok) throw new Error('Error al cargar items');
     ITEMS = await itemsRes.json();
-    COPY = await copyRes.json();
+    COPY = copyRes.ok ? await copyRes.json() : {};
     document.getElementById('loading').style.display = 'none';
     init();
   } catch(e) {
     const el = document.getElementById('error-msg');
     el.style.display = 'flex';
-    el.innerHTML = '<div>Error al cargar datos del servidor</div><div style="color:#666;margin-top:4px;font-size:9px">' + e.message + '</div>';
+    el.innerHTML = '<div>Error al cargar datos</div><div style="color:#666;margin-top:4px;font-size:9px">' + e.message + '</div>';
     document.getElementById('loading').style.display = 'none';
   }
 }
